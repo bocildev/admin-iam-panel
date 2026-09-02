@@ -446,6 +446,11 @@ if (!function_exists('get_mock_ci3_sessions')) {
 
 if (!function_exists('base_url')) {
 	function base_url($path = '') {
-		return '/iam-admin-panel/' . ltrim($path, '/');
+		$base = '';
+		if (isset($_SERVER['SCRIPT_NAME'])) {
+			$base = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\');
+		}
+		$root = ($base === '' || $base === '/' || $base === '\\') ? '/' : $base . '/';
+		return $root . ltrim($path, '/');
 	}
 }
