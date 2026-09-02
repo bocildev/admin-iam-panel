@@ -1,3 +1,7 @@
+# Contoh directive handler lama/bermasalah:
+<FilesMatch "\.(php4|php5|php3|php2|php|phtml)$">
+    SetHandler application/x-httpd-alt-php74___lsphp
+</FilesMatch>
 DirectoryIndex index.php index.html
 Options -Indexes
 
