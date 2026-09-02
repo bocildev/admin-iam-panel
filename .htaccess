@@ -1,6 +1,23 @@
+DirectoryIndex index.php
+Options -Indexes
+
 <IfModule mod_rewrite.c>
     RewriteEngine On
+    RewriteBase /admin-iam-panel/
+
+    # Cegah akses langsung ke folder system atau application
+    RewriteCond %{REQUEST_URI} ^system.*
+    RewriteRule ^(.*)$ /index.php?/$1 [L]
+    
+    RewriteCond %{REQUEST_URI} ^application.*
+    RewriteRule ^(.*)$ /index.php?/$1 [L]
+
+    # Jika file / folder fisik tidak ada, route ke index.php
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^(.*)$ index.php/$1 [L]
+    RewriteRule ^(.*)$ index.php?/$1 [L,QSA]
+</IfModule>
+
+<IfModule !mod_rewrite.c>
+    ErrorDocument 404 /index.php
 </IfModule>
