@@ -82,8 +82,7 @@ class Auth extends CI_Controller {
     public function login() {
         if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] === 'GET') {
             if ($this->auth_service->is_logged_in()) {
-                $base_url = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]/iam-admin-panel/";
-                header('Location: ' . $base_url . 'dashboard');
+                header('Location: ' . base_url('dashboard'));
                 exit;
             }
             return $this->load->view('auth/login');
