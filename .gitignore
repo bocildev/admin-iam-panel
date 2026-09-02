@@ -1,0 +1,9 @@
+.htaccess
+/cookie.txt
+/empty_plan_check.txt
+.agents/
+.idea/
+.vscode/
+Thumbs.db
+Desktop.ini
+*.log
