@@ -18,12 +18,34 @@ class Motion_portfolio extends MY_Controller {
         $this->load->model('Apikey_model');
         $this->load->model('Application_model');
 
-        $projects       = $this->Motion_portfolio_model->get_all_projects();
-        $profile        = $this->Motion_portfolio_model->get_config('profile') ?: array();
-        $skills         = $this->Motion_portfolio_model->get_config('skills') ?: array();
-        $software_tools = $this->Motion_portfolio_model->get_config('software_tools') ?: array();
-        $app            = $this->Application_model->get_by_slug('motion-portfolio');
-        $api_key        = $app ? $this->Apikey_model->get_key_by_app_id($app['id']) : null;
+        $db_connected = $this->db->is_connected();
+        $db_error = $this->db->get_connection_error();
+        $table_errors = array();
+
+        $projects       = array();
+        $profile        = array();
+        $skills         = array();
+        $software_tools = array();
+        $app            = null;
+        $api_key        = null;
+
+        if ($db_connected) {
+            $required_tables = array('motion_projects', 'motion_config', 'applications', 'api_keys');
+            foreach ($required_tables as $tbl) {
+                if (!$this->db->table_exists($tbl)) {
+                    $table_errors[] = $tbl;
+                }
+            }
+
+            if (empty($table_errors)) {
+                $projects       = $this->Motion_portfolio_model->get_all_projects();
+                $profile        = $this->Motion_portfolio_model->get_config('profile') ?: array();
+                $skills         = $this->Motion_portfolio_model->get_config('skills') ?: array();
+                $software_tools = $this->Motion_portfolio_model->get_config('software_tools') ?: array();
+                $app            = $this->Application_model->get_by_slug('motion-portfolio');
+                $api_key        = $app ? $this->Apikey_model->get_key_by_app_id($app['id']) : null;
+            }
+        }
 
         $data = array(
             'active_tab'     => 'motion_portfolio',
@@ -33,7 +55,13 @@ class Motion_portfolio extends MY_Controller {
             'skills'         => $skills,
             'software_tools' => $software_tools,
             'application'    => $app,
-            'api_key'        => $api_key
+            'api_key'        => $api_key,
+            'db_status'      => array(
+                'connected'        => $db_connected,
+                'connection_error' => $db_error,
+                'missing_tables'   => $table_errors,
+                'config'           => $this->db->get_config_info()
+            )
         );
 
         $this->load->view('layout/header', $data);
@@ -46,6 +74,16 @@ class Motion_portfolio extends MY_Controller {
     }
 
     public function save_profile() {
+        if (!$this->db->is_connected()) {
+            $err = $this->db->get_connection_error();
+            return $this->json_response(array(
+                'success'    => false,
+                'error'      => 'Koneksi database gagal terhubung. Periksa konfigurasi MySQL.',
+                'db_error'   => true,
+                'db_details' => $err
+            ), 503);
+        }
+
         $input = json_decode(file_get_contents('php://input'), true);
         if (!$input) {
             $input = $this->input->post();
@@ -55,11 +93,30 @@ class Motion_portfolio extends MY_Controller {
             return $this->json_response(array('success' => false, 'error' => 'Nama lengkap wajib diisi'), 400);
         }
 
-        $this->Motion_portfolio_model->save_config('profile', $input);
+        $ok = $this->Motion_portfolio_model->save_config('profile', $input);
+        if (!$ok) {
+            $last_err = $this->db->get_last_error();
+            return $this->json_response(array(
+                'success'    => false,
+                'error'      => 'Gagal menyimpan profil ke database: ' . (isset($last_err['message']) ? $last_err['message'] : 'Query execution error'),
+                'db_error'   => true,
+                'db_details' => $last_err
+            ), 500);
+        }
         return $this->json_response(array('success' => true, 'message' => 'Profil berhasil diperbarui'));
     }
 
     public function save_project() {
+        if (!$this->db->is_connected()) {
+            $err = $this->db->get_connection_error();
+            return $this->json_response(array(
+                'success'    => false,
+                'error'      => 'Koneksi database gagal terhubung.',
+                'db_error'   => true,
+                'db_details' => $err
+            ), 503);
+        }
+
         $input = json_decode(file_get_contents('php://input'), true);
         if (!$input) {
             $input = $this->input->post();
@@ -70,34 +127,100 @@ class Motion_portfolio extends MY_Controller {
         }
 
         $id = $this->Motion_portfolio_model->save_project($input);
+        if (!$id) {
+            $last_err = $this->db->get_last_error();
+            return $this->json_response(array(
+                'success'    => false,
+                'error'      => 'Gagal menyimpan proyek ke database: ' . (isset($last_err['message']) ? $last_err['message'] : 'Query execution error'),
+                'db_error'   => true,
+                'db_details' => $last_err
+            ), 500);
+        }
         return $this->json_response(array('success' => true, 'id' => $id, 'message' => 'Proyek berhasil disimpan'));
     }
 
     public function delete_project($id) {
+        if (!$this->db->is_connected()) {
+            $err = $this->db->get_connection_error();
+            return $this->json_response(array(
+                'success'    => false,
+                'error'      => 'Koneksi database gagal terhubung.',
+                'db_error'   => true,
+                'db_details' => $err
+            ), 503);
+        }
+
         if (!$id) {
             return $this->json_response(array('success' => false, 'error' => 'Project ID required'), 400);
         }
-        $this->Motion_portfolio_model->delete_project($id);
+        $ok = $this->Motion_portfolio_model->delete_project($id);
+        if (!$ok) {
+            $last_err = $this->db->get_last_error();
+            return $this->json_response(array(
+                'success'    => false,
+                'error'      => 'Gagal menghapus proyek: ' . (isset($last_err['message']) ? $last_err['message'] : 'Query execution error'),
+                'db_error'   => true,
+                'db_details' => $last_err
+            ), 500);
+        }
         return $this->json_response(array('success' => true, 'message' => 'Proyek berhasil dihapus'));
     }
 
     public function save_skills() {
+        if (!$this->db->is_connected()) {
+            $err = $this->db->get_connection_error();
+            return $this->json_response(array(
+                'success'    => false,
+                'error'      => 'Koneksi database gagal terhubung.',
+                'db_error'   => true,
+                'db_details' => $err
+            ), 503);
+        }
+
         $input = json_decode(file_get_contents('php://input'), true);
         if (!$input || !is_array($input)) {
             return $this->json_response(array('success' => false, 'error' => 'Data skill tidak valid'), 400);
         }
 
-        $this->Motion_portfolio_model->save_config('skills', $input);
+        $ok = $this->Motion_portfolio_model->save_config('skills', $input);
+        if (!$ok) {
+            $last_err = $this->db->get_last_error();
+            return $this->json_response(array(
+                'success'    => false,
+                'error'      => 'Gagal menyimpan skills ke database: ' . (isset($last_err['message']) ? $last_err['message'] : 'Query error'),
+                'db_error'   => true,
+                'db_details' => $last_err
+            ), 500);
+        }
         return $this->json_response(array('success' => true, 'message' => 'Daftar keahlian berhasil diperbarui'));
     }
 
     public function save_tools() {
+        if (!$this->db->is_connected()) {
+            $err = $this->db->get_connection_error();
+            return $this->json_response(array(
+                'success'    => false,
+                'error'      => 'Koneksi database gagal terhubung.',
+                'db_error'   => true,
+                'db_details' => $err
+            ), 503);
+        }
+
         $input = json_decode(file_get_contents('php://input'), true);
         if (!$input || !is_array($input)) {
             return $this->json_response(array('success' => false, 'error' => 'Data tools tidak valid'), 400);
         }
 
-        $this->Motion_portfolio_model->save_config('software_tools', $input);
+        $ok = $this->Motion_portfolio_model->save_config('software_tools', $input);
+        if (!$ok) {
+            $last_err = $this->db->get_last_error();
+            return $this->json_response(array(
+                'success'    => false,
+                'error'      => 'Gagal menyimpan tools ke database: ' . (isset($last_err['message']) ? $last_err['message'] : 'Query error'),
+                'db_error'   => true,
+                'db_details' => $last_err
+            ), 500);
+        }
         return $this->json_response(array('success' => true, 'message' => 'Daftar tools berhasil diperbarui'));
     }
 

@@ -102,11 +102,37 @@ class Api extends CI_Controller {
 
     // GET /api/health
     public function health() {
+        $connected = $this->db->is_connected();
+        $conn_err = $this->db->get_connection_error();
+        $cfg = $this->db->get_config_info();
+
+        $tables = array();
+        $all_tables_ok = true;
+        if ($connected) {
+            foreach (array('admins', 'applications', 'api_keys', 'motion_projects', 'motion_config') as $t) {
+                $exists = $this->db->table_exists($t);
+                $tables[$t] = $exists ? 'ready' : 'missing';
+                if (!$exists) $all_tables_ok = false;
+            }
+        } else {
+            $all_tables_ok = false;
+        }
+
+        $status_code = ($connected && $all_tables_ok) ? 200 : 503;
         $this->json_response(array(
-            'status' => 'ok',
-            'app' => 'PortAdmin IAM Portal (CodeIgniter 3)',
-            'timestamp' => date('c')
-        ));
+            'status'     => ($connected && $all_tables_ok) ? 'healthy' : 'degraded',
+            'app'        => 'PortAdmin IAM Portal (CodeIgniter 3)',
+            'timestamp'  => date('c'),
+            'database'   => array(
+                'connected' => $connected,
+                'host'      => $cfg['hostname'],
+                'database'  => $cfg['database'],
+                'error'     => $conn_err ? $conn_err['message'] : null,
+                'code'      => $conn_err ? $conn_err['code'] : null,
+                'location'  => $conn_err ? ($conn_err['file'] . ':' . $conn_err['line']) : null
+            ),
+            'tables'     => $tables
+        ), $status_code);
     }
 
     // POST /api/users/add
@@ -593,15 +619,43 @@ class Api extends CI_Controller {
         );
     }
 
+
+
     // ==========================================
     // DEDICATED MOTION PORTFOLIO REST API
     // ==========================================
 
     // GET /api/motion/portfolio
     public function motion_portfolio() {
+        if (!$this->db->is_connected()) {
+            $err = $this->db->get_connection_error();
+            return $this->json_response(array(
+                'success'    => false,
+                'error'      => 'Database Connection Failed',
+                'error_type' => 'DATABASE_UNAVAILABLE',
+                'message'    => 'Layanan database IAM tidak dapat dijangkau oleh server.',
+                'details'    => $err ? $err['message'] : 'Unable to connect to MySQL/MariaDB server',
+                'db_host'    => isset($err['host']) ? $err['host'] : 'localhost',
+                'db_name'    => isset($err['database']) ? $err['database'] : 'saas_iam_db',
+                'code'       => isset($err['code']) ? $err['code'] : 'HY000'
+            ), 503);
+        }
+
         $auth_key = $this->authenticate_token('portfolio:read');
         $this->load->model('Motion_portfolio_model');
         $data = $this->Motion_portfolio_model->get_all_portfolio_data();
+        $last_err = $this->db->get_last_error();
+        if ($last_err) {
+            return $this->json_response(array(
+                'success'    => false,
+                'error'      => 'Database Query Error',
+                'error_type' => 'DATABASE_QUERY_ERROR',
+                'message'    => 'Gagal mengambil data portofolio dari tabel database.',
+                'details'    => $last_err['message'],
+                'query_sql'  => isset($last_err['sql']) ? $last_err['sql'] : null
+            ), 500);
+        }
+
         $data['_auth'] = array(
             'authenticated' => true,
             'client_app'    => isset($auth_key['app_name']) && $auth_key['app_name'] ? $auth_key['app_name'] : 'Authenticated Client',
@@ -612,6 +666,19 @@ class Api extends CI_Controller {
 
     // GET /api/motion/projects
     public function motion_projects() {
+        if (!$this->db->is_connected()) {
+            $err = $this->db->get_connection_error();
+            return $this->json_response(array(
+                'success'    => false,
+                'error'      => 'Database Connection Failed',
+                'error_type' => 'DATABASE_UNAVAILABLE',
+                'message'    => 'Layanan database IAM tidak dapat dijangkau.',
+                'details'    => $err ? $err['message'] : 'Unable to connect to database',
+                'db_host'    => isset($err['host']) ? $err['host'] : 'localhost',
+                'db_name'    => isset($err['database']) ? $err['database'] : 'saas_iam_db'
+            ), 503);
+        }
+
         $auth_key = $this->authenticate_token('portfolio:read');
         $this->load->model('Motion_portfolio_model');
         $projects = $this->Motion_portfolio_model->get_all_projects(true);
@@ -620,6 +687,14 @@ class Api extends CI_Controller {
 
     // POST /api/motion/project/save
     public function motion_save_project() {
+        if (!$this->db->is_connected()) {
+            $err = $this->db->get_connection_error();
+            return $this->json_response(array(
+                'error'   => 'Database Connection Failed',
+                'details' => $err ? $err['message'] : 'Database offline'
+            ), 503);
+        }
+
         $this->authenticate_token('portfolio:write');
         $this->load->model('Motion_portfolio_model');
         $input = $this->input->raw_json();
@@ -627,11 +702,26 @@ class Api extends CI_Controller {
             return $this->json_response(array('error' => 'Title is required'), 400);
         }
         $id = $this->Motion_portfolio_model->save_project($input);
+        if (!$id) {
+            $last_err = $this->db->get_last_error();
+            return $this->json_response(array(
+                'error'   => 'Database Query Error',
+                'details' => isset($last_err['message']) ? $last_err['message'] : 'Failed to save project'
+            ), 500);
+        }
         $this->json_response(array('success' => true, 'id' => $id));
     }
 
     // POST /api/motion/config/save
     public function motion_save_config() {
+        if (!$this->db->is_connected()) {
+            $err = $this->db->get_connection_error();
+            return $this->json_response(array(
+                'error'   => 'Database Connection Failed',
+                'details' => $err ? $err['message'] : 'Database offline'
+            ), 503);
+        }
+
         $this->authenticate_token('portfolio:write');
         $this->load->model('Motion_portfolio_model');
         $input = $this->input->raw_json();
@@ -642,7 +732,14 @@ class Api extends CI_Controller {
             return $this->json_response(array('error' => 'Config key required'), 400);
         }
 
-        $this->Motion_portfolio_model->save_config($key, $val);
+        $ok = $this->Motion_portfolio_model->save_config($key, $val);
+        if (!$ok) {
+            $last_err = $this->db->get_last_error();
+            return $this->json_response(array(
+                'error'   => 'Database Query Error',
+                'details' => isset($last_err['message']) ? $last_err['message'] : 'Failed to save config'
+            ), 500);
+        }
         $this->json_response(array('success' => true));
     }
 }

@@ -29,6 +29,65 @@
     <!-- Floating Top-Right Toast Container -->
     <div id="motion-toast-container" class="fixed top-6 right-6 z-[9999] flex flex-col gap-3 max-w-sm w-full pointer-events-none"></div>
 
+    <?php if (!empty($db_status) && (!$db_status['connected'] || !empty($db_status['missing_tables']))): ?>
+    <!-- Database Connection / Schema Diagnostic Alert -->
+    <div class="rounded-2xl border border-rose-500/40 bg-rose-500/10 p-5 text-slate-200 shadow-xl backdrop-blur-sm animate-in">
+        <div class="flex items-start gap-4">
+            <div class="w-10 h-10 rounded-xl bg-rose-500/20 border border-rose-500/40 flex items-center justify-center shrink-0 text-rose-400">
+                <i data-lucide="database" class="w-5 h-5"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 flex-wrap">
+                    <h3 class="font-bold text-sm text-rose-300">Peringatan Server: Gangguan Akses Database</h3>
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-mono bg-rose-500/25 text-rose-300 border border-rose-500/30 uppercase font-semibold">
+                        <?php echo !$db_status['connected'] ? 'CONNECTION_LOST' : 'MISSING_TABLES'; ?>
+                    </span>
+                </div>
+                
+                <?php if (!$db_status['connected']): ?>
+                    <p class="text-xs text-slate-300 mt-1.5 leading-relaxed">
+                        Aplikasi IAM tidak dapat terhubung ke server database MySQL/MariaDB. Modul Portofolio Motion saat ini tidak dapat memuat data aktual atau menyimpan perubahan.
+                    </p>
+                    <div class="mt-3 p-3.5 rounded-xl bg-[#0A0E1A]/85 border border-rose-500/25 text-[11px] font-mono text-rose-200/90 space-y-1.5">
+                        <div class="flex items-center gap-2">
+                            <span class="text-slate-400 font-semibold">Target Server:</span>
+                            <span class="text-sky-300"><?php echo htmlspecialchars($db_status['config']['hostname'] ?? 'localhost'); ?></span>
+                            <span class="text-slate-500">|</span>
+                            <span class="text-slate-400 font-semibold">Database:</span>
+                            <span class="text-sky-300"><?php echo htmlspecialchars($db_status['config']['database'] ?? 'saas_iam_db'); ?></span>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 font-semibold">Pesan Error:</span>
+                            <span class="text-rose-300 break-all"><?php echo htmlspecialchars($db_status['connection_error']['message'] ?? 'Connection refused / service stopped'); ?></span>
+                        </div>
+                        <?php if (!empty($db_status['connection_error']['file'])): ?>
+                        <div>
+                            <span class="text-slate-400 font-semibold">Lokasi Terdeteksi:</span>
+                            <span class="text-slate-300"><?php echo htmlspecialchars(basename($db_status['connection_error']['file']) . ':' . $db_status['connection_error']['line']); ?></span>
+                        </div>
+                        <?php endif; ?>
+                    </div>
+                    <div class="mt-3 text-xs text-slate-300 flex items-start gap-2 bg-rose-950/20 p-2.5 rounded-lg border border-rose-500/20">
+                        <i data-lucide="help-circle" class="w-4 h-4 text-rose-400 shrink-0 mt-0.5"></i>
+                        <span><strong>Petunjuk Tindakan:</strong> Periksa status daemon MySQL/MariaDB di server (misal: <code>systemctl status mariadb</code> atau XAMPP MySQL). Pastikan user/password pada <code>application/config/database.php</code> valid dan database <code><?php echo htmlspecialchars($db_status['config']['database'] ?? 'saas_iam_db'); ?></code> sudah dibuat.</span>
+                    </div>
+                <?php elseif (!empty($db_status['missing_tables'])): ?>
+                    <p class="text-xs text-slate-300 mt-1.5">Koneksi ke MySQL aktif, namun tabel wajib untuk Portofolio Motion belum ditemukan pada database <code><?php echo htmlspecialchars($db_status['config']['database'] ?? 'saas_iam_db'); ?></code>:</p>
+                    <div class="mt-2.5 flex flex-wrap gap-2">
+                        <?php foreach ($db_status['missing_tables'] as $t): ?>
+                        <span class="px-2.5 py-1 rounded-lg bg-rose-500/20 text-rose-300 border border-rose-500/30 text-xs font-mono font-medium flex items-center gap-1.5">
+                            <i data-lucide="x-circle" class="w-3.5 h-3.5"></i>
+                            <span><?php echo htmlspecialchars($t); ?></span>
+                        </span>
+                        <?php endforeach; ?>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-2">Jalankan migrasi schema SQL agar tabel-tabel di atas terbuat.</p>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
+
     <!-- Tab Navigation -->
     <div class="flex items-center justify-between border-b border-[#1E293B] pb-0">
         <div class="flex gap-2 overflow-x-auto">
@@ -614,10 +673,11 @@ async function handleSaveProfile(e) {
         if (json.success) {
             showToast('Profil berhasil disimpan dan diperbarui!');
         } else {
-            showToast('Gagal menyimpan profil: ' + (json.error || 'Unknown'), false);
+            const detail = (json.db_details && json.db_details.message) ? ' [' + json.db_details.message + ']' : '';
+            showToast((json.db_error ? '❌ [Database Error] ' : 'Gagal: ') + (json.error || 'Terjadi kesalahan') + detail, false, 7000);
         }
     } catch (err) {
-        showToast('Error koneksi ke server: ' + err.message, false);
+        showToast('Error koneksi ke server: ' + err.message, false, 7000);
     }
 }
 
@@ -655,7 +715,6 @@ async function handleSaveProject(e) {
     const formData = new FormData(e.target);
     const raw = Object.fromEntries(formData.entries());
     
-    // Parse tech stack
     raw.tech_stack = raw.tech_stack_raw ? raw.tech_stack_raw.split(',').map(s => s.trim()).filter(Boolean) : [];
     delete raw.tech_stack_raw;
 
@@ -671,10 +730,11 @@ async function handleSaveProject(e) {
             showToast('Proyek berhasil disimpan!');
             setTimeout(() => window.location.reload(), 1000);
         } else {
-            showToast('Gagal menyimpan: ' + (json.error || 'Unknown'), false);
+            const detail = (json.db_details && json.db_details.message) ? ' [' + json.db_details.message + ']' : '';
+            showToast((json.db_error ? '❌ [Database Error] ' : 'Gagal: ') + (json.error || 'Terjadi kesalahan') + detail, false, 7000);
         }
     } catch (err) {
-        showToast('Error koneksi: ' + err.message, false);
+        showToast('Error koneksi: ' + err.message, false, 7000);
     }
 }
 
@@ -688,9 +748,12 @@ async function handleDeleteProject(id) {
         if (json.success) {
             showToast('Proyek berhasil dihapus');
             setTimeout(() => window.location.reload(), 800);
+        } else {
+            const detail = (json.db_details && json.db_details.message) ? ' [' + json.db_details.message + ']' : '';
+            showToast((json.db_error ? '❌ [Database Error] ' : 'Gagal menghapus: ') + (json.error || 'Terjadi kesalahan') + detail, false, 7000);
         }
     } catch (err) {
-        showToast('Error saat menghapus: ' + err.message, false);
+        showToast('Error saat menghapus: ' + err.message, false, 7000);
     }
 }
 
@@ -715,9 +778,12 @@ async function handleSaveSkills() {
         const json = await res.json();
         if (json.success) {
             showToast('Daftar keahlian berhasil diperbarui!');
+        } else {
+            const detail = (json.db_details && json.db_details.message) ? ' [' + json.db_details.message + ']' : '';
+            showToast((json.db_error ? '❌ [Database Error] ' : 'Gagal: ') + (json.error || 'Terjadi kesalahan') + detail, false, 7000);
         }
     } catch (err) {
-        showToast('Error: ' + err.message, false);
+        showToast('Error: ' + err.message, false, 7000);
     }
 }
 
@@ -729,4 +795,14 @@ function copyApiToken(text) {
         alert('API Token: ' + text);
     });
 }
+
+<?php if (!empty($db_status) && (!$db_status['connected'] || !empty($db_status['missing_tables']))): ?>
+document.addEventListener('DOMContentLoaded', () => {
+    <?php if (!$db_status['connected']): ?>
+    showToast('❌ [Koneksi Database Gagal] Host: <?php echo addslashes($db_status["config"]["hostname"] ?? "localhost"); ?> - <?php echo addslashes($db_status["connection_error"]["message"] ?? "MySQL offline"); ?>', false, 8000);
+    <?php else: ?>
+    showToast('⚠️ [Tabel Kurang] Tabel belum lengkap: <?php echo addslashes(implode(", ", $db_status["missing_tables"])); ?>', false, 8000);
+    <?php endif; ?>
+});
+<?php endif; ?>
 </script>
