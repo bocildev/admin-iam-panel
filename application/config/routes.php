@@ -60,6 +60,7 @@ $route['applications/create'] = 'applications/create';
 $route['applications/update'] = 'applications/update';
 $route['applications/delete'] = 'applications/delete';
 $route['applications/test-db'] = 'applications/test_db';
+$route['applications/generate-token'] = 'applications/generate_token';
 
 // Database Manager Route
 $route['applications/database/(:any)'] = 'database_manager/index/$1';

@@ -275,6 +275,53 @@ $this->load->view('components/modal', [
         <textarea name="description" id="edit_app_description" rows="3" class="vf-input w-full focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"></textarea>
     </div>
 
+    <!-- Client REST API Token & Access Keys -->
+    <div class="space-y-3 pt-3 border-t border-[#1E293B]">
+        <div class="flex items-center justify-between">
+            <h4 class="text-sm font-bold text-white flex items-center gap-2">
+                <i data-lucide="key" class="w-4 h-4 text-amber-400"></i> Client REST API Token &amp; Permission
+            </h4>
+            <span id="edit_token_status_badge" class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 uppercase">
+                Active Token
+            </span>
+        </div>
+        <p class="text-[11px] text-slate-400">
+            Token izin autentikasi headless untuk aplikasi klien (Nuxt 3 Motion Portfolio / Mobile App). Kirimkan pada header <code class="text-cyan-300">Authorization: Bearer &lt;token&gt;</code>.
+        </p>
+
+        <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Client API Token (Bearer)</label>
+            <div class="flex items-center gap-2">
+                <div class="relative flex-1">
+                    <input type="text" name="client_token" id="edit_client_token" placeholder="Belum ada token (klik Generate)" class="vf-input w-full font-mono text-xs text-cyan-300 pr-20 bg-[#0A0E1A] focus:border-amber-400">
+                    <div class="absolute inset-y-0 right-0 flex items-center pr-2 gap-1">
+                        <button type="button" onclick="toggleEditTokenMask()" class="p-1 text-slate-400 hover:text-white transition cursor-pointer" title="Toggle Tampilkan / Sembunyikan Token">
+                            <i data-lucide="eye" class="w-3.5 h-3.5" id="token_eye_icon"></i>
+                        </button>
+                        <button type="button" onclick="copyEditToken()" class="p-1 text-slate-400 hover:text-amber-400 transition cursor-pointer" title="Salin Token">
+                            <i data-lucide="copy" class="w-3.5 h-3.5" id="token_copy_icon"></i>
+                        </button>
+                    </div>
+                </div>
+                <button type="button" onclick="generateNewAppToken()" class="px-3 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-bold text-xs flex items-center gap-1.5 transition shadow-sm shrink-0 cursor-pointer" title="Generate atau perbarui token baru">
+                    <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                    <span>Generate Baru</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="p-3 rounded-xl bg-[#0A0E1A] border border-[#1E293B] space-y-1.5">
+            <div class="flex items-center justify-between text-[11px]">
+                <span class="text-slate-400">Default Izin (Scopes):</span>
+                <span class="text-xs font-mono text-cyan-300">portfolio:read, portfolio:write, *</span>
+            </div>
+            <div class="text-[10px] text-slate-400 font-mono flex items-center gap-2">
+                <i data-lucide="info" class="w-3 h-3 text-cyan-400"></i>
+                <span>Nilai token ini dapat disalin ke file <code class="text-amber-300">.env</code> aplikasi klien (<code class="text-amber-300">IAM_API_TOKEN</code>).</span>
+            </div>
+        </div>
+    </div>
+
     <div class="space-y-4 pt-3 border-t border-[#1E293B]">
         <h4 class="text-sm font-bold text-white flex items-center gap-2">
             <i data-lucide="database" class="w-4 h-4 text-cyan-400"></i> Database Configuration
@@ -455,6 +502,23 @@ function openEditAppModal(app) {
     document.getElementById('edit_app_status').value = app.status;
     document.getElementById('edit_app_description').value = app.description || '';
 
+    // Populate Client Token
+    const tokenInput = document.getElementById('edit_client_token');
+    const tokenBadge = document.getElementById('edit_token_status_badge');
+    const activeToken = app.active_api_token || '';
+    if (tokenInput) {
+        tokenInput.value = activeToken;
+    }
+    if (tokenBadge) {
+        if (activeToken) {
+            tokenBadge.textContent = (app.token_status || 'active').toUpperCase();
+            tokenBadge.className = 'px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 uppercase';
+        } else {
+            tokenBadge.textContent = 'NO TOKEN';
+            tokenBadge.className = 'px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-500/10 text-amber-400 border border-amber-500/30 uppercase';
+        }
+    }
+
     if(document.getElementById('edit_db_name')) document.getElementById('edit_db_name').value = app.db_name || '';
     if(document.getElementById('edit_db_host')) document.getElementById('edit_db_host').value = app.db_host || '';
     if(document.getElementById('edit_db_port')) document.getElementById('edit_db_port').value = app.db_port || '';
@@ -462,6 +526,89 @@ function openEditAppModal(app) {
 
     document.getElementById('editAppModal').classList.remove('hidden');
     document.getElementById('editAppModal').classList.add('flex');
+    if (window.lucide) lucide.createIcons();
+}
+
+function toggleEditTokenMask() {
+    const input = document.getElementById('edit_client_token');
+    const icon = document.getElementById('token_eye_icon');
+    if (!input) return;
+    if (input.type === 'password') {
+        input.type = 'text';
+        if (icon) icon.setAttribute('data-lucide', 'eye-off');
+    } else {
+        input.type = 'password';
+        if (icon) icon.setAttribute('data-lucide', 'eye');
+    }
+    if (window.lucide) lucide.createIcons();
+}
+
+function copyEditToken() {
+    const input = document.getElementById('edit_client_token');
+    if (!input || !input.value) {
+        Swal.fire({ title: 'Info', text: 'Belum ada token untuk disalin. Klik tombol "Generate Baru".', icon: 'info', background: '#0D1322', color: '#F1F5F9' });
+        return;
+    }
+    navigator.clipboard.writeText(input.value).then(() => {
+        Swal.fire({
+            title: 'Tersalin!',
+            text: 'Client API Token berhasil disalin:\n' + input.value,
+            icon: 'success',
+            background: '#0D1322',
+            color: '#F1F5F9',
+            confirmButtonColor: '#06b6d4'
+        });
+    });
+}
+
+function generateNewAppToken() {
+    const appId = document.getElementById('edit_app_id').value;
+    if (!appId) return;
+
+    Swal.fire({
+        title: 'Generate Token Baru?',
+        text: 'Ini akan membuat / memperbarui token live untuk aplikasi ini.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#f59e0b',
+        cancelButtonColor: '#64748b',
+        confirmButtonText: 'Ya, Generate Token',
+        cancelButtonText: 'Batal',
+        background: '#0D1322',
+        color: '#F1F5F9'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch('<?php echo base_url("applications/generate-token"); ?>', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: appId })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.token) {
+                    document.getElementById('edit_client_token').value = data.token;
+                    const tokenBadge = document.getElementById('edit_token_status_badge');
+                    if (tokenBadge) {
+                        tokenBadge.textContent = 'ACTIVE';
+                        tokenBadge.className = 'px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 uppercase';
+                    }
+                    Swal.fire({
+                        title: 'Token Baru Berhasil Dibuat!',
+                        html: `Token Live:<br><code style="color:#06b6d4;font-size:12px;word-break:break-all;">${data.token}</code><br><br>Token otomatis dimasukkan ke input. Klik <strong>Simpan Perubahan</strong> untuk menyimpan.`,
+                        icon: 'success',
+                        background: '#0D1322',
+                        color: '#F1F5F9',
+                        confirmButtonColor: '#06b6d4'
+                    });
+                } else {
+                    Swal.fire({ title: 'Gagal', text: data.error || 'Gagal generate token', icon: 'error', background: '#0D1322', color: '#F1F5F9' });
+                }
+            })
+            .catch(err => {
+                Swal.fire({ title: 'Error', text: err.message, icon: 'error', background: '#0D1322', color: '#F1F5F9' });
+            });
+        }
+    });
 }
 
 function closeEditAppModal() {

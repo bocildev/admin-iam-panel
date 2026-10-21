@@ -169,6 +169,34 @@ class Applications extends MY_Controller {
             $this->App_database_model->update_db_metadata($id, $db_data);
         }
 
+        // Update / Save Client API Token
+        if (isset($input['client_token'])) {
+            $client_token = trim($input['client_token']);
+            $this->load->model('Apikey_model');
+            $existing_key = $this->Apikey_model->get_key_by_app_id($id);
+
+            if (!empty($client_token)) {
+                $token_hash = hash('sha256', $client_token);
+                $prefix = substr($client_token, 0, 12) . '...';
+                $secret_masked = substr($client_token, 0, 12) . '****************' . substr($client_token, -4);
+                $token_status = ($data['status'] === 'suspended') ? 'revoked' : 'active';
+                $scopes = json_encode(array('portfolio:read', 'portfolio:write', '*'));
+
+                if ($existing_key) {
+                    $this->db->query(
+                        "UPDATE api_keys SET secret_key = ?, token_hash = ?, prefix = ?, secret_masked = ?, status = ? WHERE id = ?",
+                        array($client_token, $token_hash, $prefix, $secret_masked, $token_status, $existing_key['id'])
+                    );
+                } else {
+                    $new_key_id = 'KEY-' . sprintf('%04d', rand(100, 9999));
+                    $this->db->query(
+                        "INSERT INTO api_keys (id, application_id, name, prefix, secret_masked, token_hash, secret_key, owner_email, scopes, rate_limit, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())",
+                        array($new_key_id, $id, $data['name'] . ' Client Key', $prefix, $secret_masked, $token_hash, $client_token, 'athallahrich@gmail.com', $scopes, 600, $token_status)
+                    );
+                }
+            }
+        }
+
         $this->Audit_model->add_log(
             'APP_UPDATED',
             "Memperbarui aplikasi [{$data['name']}] ({$id})",
@@ -177,6 +205,51 @@ class Applications extends MY_Controller {
         );
 
         return $this->json_response(array('message' => 'Application updated successfully'));
+    }
+
+    /**
+     * POST /applications/generate-token
+     */
+    public function generate_token() {
+        $input = $this->get_json_input();
+        $id = isset($input['id']) ? trim($input['id']) : '';
+
+        if (empty($id)) {
+            return $this->json_response(array('error' => 'Application ID is required'), 400);
+        }
+
+        $app = $this->Application_model->get_by_id($id);
+        if (!$app) {
+            return $this->json_response(array('error' => 'Application not found'), 404);
+        }
+
+        $this->load->model('Apikey_model');
+        $existing = $this->Apikey_model->get_key_by_app_id($id);
+
+        if ($existing) {
+            $res = $this->Apikey_model->regenerate_key($existing['id']);
+            $token = $res['rawToken'];
+        } else {
+            $res = $this->Apikey_model->add_key(array(
+                'application_id' => $id,
+                'name' => $app['name'] . ' Client Key',
+                'scopes' => array('portfolio:read', 'portfolio:write', '*')
+            ));
+            $token = $res['rawToken'];
+        }
+
+        $this->Audit_model->add_log(
+            'APP_TOKEN_GENERATE',
+            "Generate/Regenerate REST API token untuk aplikasi [{$app['name']}] ({$id})",
+            'high',
+            'warning'
+        );
+
+        return $this->json_response(array(
+            'success' => true,
+            'token' => $token,
+            'message' => 'Token berhasil dibuat'
+        ));
     }
 
     /**

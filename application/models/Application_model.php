@@ -11,7 +11,10 @@ class Application_model extends CI_Model {
         if ($this->db->is_connected()) {
             $sql = "SELECT a.*, d.db_name, d.status as db_status, d.db_host, d.db_port, d.db_user,
                     (SELECT COUNT(*) FROM api_keys k WHERE k.application_id = a.id) as key_count,
-                    (SELECT k.secret_key FROM api_keys k WHERE k.application_id = a.id AND k.status = 'active' ORDER BY k.created_at DESC LIMIT 1) as active_api_token
+                    (SELECT k.id FROM api_keys k WHERE k.application_id = a.id ORDER BY k.created_at DESC LIMIT 1) as token_id,
+                    (SELECT k.secret_key FROM api_keys k WHERE k.application_id = a.id ORDER BY k.created_at DESC LIMIT 1) as active_api_token,
+                    (SELECT k.scopes FROM api_keys k WHERE k.application_id = a.id ORDER BY k.created_at DESC LIMIT 1) as token_scopes,
+                    (SELECT k.status FROM api_keys k WHERE k.application_id = a.id ORDER BY k.created_at DESC LIMIT 1) as token_status
                     FROM applications a 
                     LEFT JOIN app_databases d ON a.id = d.application_id 
                     ORDER BY a.created_at DESC";
