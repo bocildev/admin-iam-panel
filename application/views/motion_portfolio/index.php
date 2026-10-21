@@ -26,8 +26,8 @@
         </div>
     </div>
 
-    <!-- Alert / Toast Container -->
-    <div id="motion-toast" class="hidden p-4 rounded-xl text-xs font-medium transition-all"></div>
+    <!-- Floating Top-Right Toast Container -->
+    <div id="motion-toast-container" class="fixed top-6 right-6 z-[9999] flex flex-col gap-3 max-w-sm w-full pointer-events-none"></div>
 
     <!-- Tab Navigation -->
     <div class="flex items-center justify-between border-b border-[#1E293B] pb-0">
@@ -543,14 +543,60 @@ function switchMotionTab(tabId, btn) {
     btn.classList.add('border-sky-400', 'text-sky-400', 'font-bold');
 }
 
-function showToast(msg, isSuccess = true) {
-    const t = document.getElementById('motion-toast');
-    t.innerHTML = msg;
-    t.className = isSuccess 
-        ? 'p-3 rounded-xl text-xs font-medium bg-emerald-500/15 border border-emerald-500/40 text-emerald-300'
-        : 'p-3 rounded-xl text-xs font-medium bg-rose-500/15 border border-rose-500/40 text-rose-300';
-    t.classList.remove('hidden');
-    setTimeout(() => t.classList.add('hidden'), 3500);
+function showToast(msg, isSuccess = true, duration = 3500) {
+    let container = document.getElementById('motion-toast-container');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'motion-toast-container';
+        container.className = 'fixed top-6 right-6 z-[9999] flex flex-col gap-3 max-w-sm w-full pointer-events-none';
+        document.body.appendChild(container);
+    }
+
+    const toast = document.createElement('div');
+    toast.className = 'pointer-events-auto transform transition-all duration-300 translate-x-10 opacity-0 flex items-start gap-3 p-4 rounded-xl bg-[#131B2E]/95 backdrop-blur-md border border-[#1E293B] shadow-2xl shadow-black/80 ' + 
+        (isSuccess ? 'border-l-4 border-l-emerald-500' : 'border-l-4 border-l-rose-500');
+
+    const iconColor = isSuccess ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' : 'text-rose-400 bg-rose-500/10 border-rose-500/20';
+    const iconName = isSuccess ? 'check-circle' : 'alert-circle';
+    const titleText = isSuccess ? 'Berhasil' : 'Pemberitahuan Sistem';
+
+    toast.innerHTML = `
+        <div class="w-8 h-8 rounded-lg ${iconColor} border flex items-center justify-center shrink-0 mt-0.5">
+            <i data-lucide="${iconName}" class="w-4 h-4"></i>
+        </div>
+        <div class="flex-1 min-w-0 pr-1">
+            <p class="text-xs font-bold text-slate-100 uppercase tracking-wider">${titleText}</p>
+            <p class="text-xs text-slate-300 mt-0.5 leading-relaxed font-medium break-words">${msg}</p>
+        </div>
+        <button type="button" class="text-slate-500 hover:text-slate-300 p-1 shrink-0 transition" onclick="this.closest('.pointer-events-auto').remove()">
+            <i data-lucide="x" class="w-3.5 h-3.5"></i>
+        </button>
+    `;
+
+    container.appendChild(toast);
+    if (window.lucide) {
+        lucide.createIcons({ root: toast });
+    }
+
+    requestAnimationFrame(() => {
+        toast.classList.remove('translate-x-10', 'opacity-0');
+        toast.classList.add('translate-x-0', 'opacity-100');
+    });
+
+    let dismissTimeout = setTimeout(dismiss, duration);
+
+    function dismiss() {
+        toast.classList.remove('translate-x-0', 'opacity-100');
+        toast.classList.add('translate-x-10', 'opacity-0');
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+            }
+        }, 300);
+    }
+
+    toast.addEventListener('mouseenter', () => clearTimeout(dismissTimeout));
+    toast.addEventListener('mouseleave', () => dismissTimeout = setTimeout(dismiss, 1500));
 }
 
 async function handleSaveProfile(e) {
