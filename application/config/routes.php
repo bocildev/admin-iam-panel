@@ -20,10 +20,26 @@ $route['api/projects'] = 'api/projects';
 $route['api/projects/add'] = 'api/add_project';
 $route['api/projects/update'] = 'api/update_project';
 $route['api/projects/delete'] = 'api/delete_project';
+$route['api/projects/upload-image'] = 'api/upload_image';
 $route['api/portfolio/settings'] = 'api/get_settings';
 $route['api/portfolio/settings/update'] = 'api/update_settings';
 $route['api/portfolio/layout'] = 'api/get_layout';
 $route['api/portfolio/layout/update'] = 'api/update_layout';
+
+// Dedicated Motion Portfolio Routes (Moch. Adam Athallahrich)
+$route['motion-portfolio'] = 'motion_portfolio/index';
+$route['motion-portfolio/save-profile'] = 'motion_portfolio/save_profile';
+$route['motion-portfolio/save-project'] = 'motion_portfolio/save_project';
+$route['motion-portfolio/delete-project/(:num)'] = 'motion_portfolio/delete_project/$1';
+$route['motion-portfolio/save-skills'] = 'motion_portfolio/save_skills';
+$route['motion-portfolio/save-tools'] = 'motion_portfolio/save_tools';
+$route['motion-portfolio/upload-media'] = 'motion_portfolio/upload_media';
+
+// Motion Portfolio REST API Routes
+$route['api/motion/portfolio'] = 'api/motion_portfolio';
+$route['api/motion/projects'] = 'api/motion_projects';
+$route['api/motion/project/save'] = 'api/motion_save_project';
+$route['api/motion/config/save'] = 'api/motion_save_config';
 
 // Auth & Admin IAM Routes
 $route['auth/login'] = 'auth/login';

@@ -3,16 +3,16 @@
     <div class="vf-page__body">
 
         <!-- Tab Navigation with inline Add Button -->
-        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800/80 pb-0 mb-6">
+        <div class="flex items-center justify-between border-b border-[#1E293B] pb-0 mb-6">
             <div class="flex gap-1">
-                <button onclick="switchTab('projects-list-tab', this)" id="tab-btn-projects" class="px-4 py-2.5 font-bold text-sm border-b-2 border-emerald-500 text-emerald-400 transition cursor-pointer rounded-t-lg">
-                    <i data-lucide="layout-grid" class="w-4 h-4 inline mr-1.5"></i>Daftar Proyek 3D
+                <button onclick="switchTab('projects-list-tab', this)" id="tab-btn-projects" class="px-4 py-2.5 font-bold text-sm border-b-2 border-emerald-500 text-emerald-400 bg-emerald-500/10 transition cursor-pointer rounded-t-xl flex items-center gap-2">
+                    <i data-lucide="layout-grid" class="w-4 h-4"></i>Daftar Proyek 3D
                 </button>
-                <button onclick="switchTab('settings-tab', this)" id="tab-btn-settings" class="px-4 py-2.5 font-semibold text-sm border-b-2 border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200 transition cursor-pointer rounded-t-lg">
-                    <i data-lucide="sliders" class="w-4 h-4 inline mr-1.5"></i>Pengaturan Animasi
+                <button onclick="switchTab('settings-tab', this)" id="tab-btn-settings" class="px-4 py-2.5 font-semibold text-sm border-b-2 border-transparent text-slate-400 hover:text-slate-200 hover:bg-[#131B2E] transition cursor-pointer rounded-t-xl flex items-center gap-2">
+                    <i data-lucide="sliders" class="w-4 h-4"></i>Pengaturan Animasi
                 </button>
-                <button onclick="switchTab('layout-tab', this)" id="tab-btn-layout" class="px-4 py-2.5 font-semibold text-sm border-b-2 border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200 transition cursor-pointer rounded-t-lg">
-                    <i data-lucide="component" class="w-4 h-4 inline mr-1.5"></i>Layout Komponen
+                <button onclick="switchTab('layout-tab', this)" id="tab-btn-layout" class="px-4 py-2.5 font-semibold text-sm border-b-2 border-transparent text-slate-400 hover:text-slate-200 hover:bg-[#131B2E] transition cursor-pointer rounded-t-xl flex items-center gap-2">
+                    <i data-lucide="component" class="w-4 h-4"></i>Layout Komponen
                 </button>
             </div>
             <?php 
@@ -20,29 +20,33 @@
                 'text' => 'Tambah Proyek Baru',
                 'variant' => 'primary',
                 'icon' => 'plus-circle',
-                'class' => 'mb-1 bg-emerald-500 hover:bg-emerald-400 border-emerald-500 shadow-emerald-500/20',
+                'class' => 'mb-1 shadow-emerald-500/20',
                 'attributes' => 'onclick="openAddProjectModal()"'
             ]); 
             ?>
         </div>
 
+        <script>
+            window.portfolioProjects = <?php echo json_encode(!empty($projects) ? $projects : [], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP); ?>;
+        </script>
+
         <!-- TAB 1: PROJECTS GRID -->
         <div id="projects-list-tab" class="tab-content space-y-6">
             <?php if (empty($projects)): ?>
-            <div class="vf-panel vf-card--elevated text-center py-12 space-y-4">
+            <div class="rounded-2xl bg-[#131B2E] border border-[#1E293B] text-center py-12 space-y-4">
                 <div class="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center mx-auto text-emerald-400">
                     <i data-lucide="folder-open" class="w-8 h-8"></i>
                 </div>
                 <div>
-                    <h3 class="text-lg font-bold text-slate-700 dark:text-slate-200">Belum Ada Proyek Portofolio</h3>
-                    <p class="text-slate-500 dark:text-slate-400 text-xs mt-1 max-w-md mx-auto">Data portofolio telah dikosongkan. Klik tombol di bawah untuk menambahkan proyek portofolio baru Anda.</p>
+                    <h3 class="text-lg font-bold text-slate-200">Belum Ada Proyek Portofolio</h3>
+                    <p class="text-slate-400 text-xs mt-1 max-w-md mx-auto">Data portofolio telah dikosongkan. Klik tombol di bawah untuk menambahkan proyek portofolio baru Anda.</p>
                 </div>
                 <?php 
                 $this->load->view('components/button', [
                     'text' => 'Tambah Proyek Pertama',
                     'variant' => 'primary',
                     'icon' => 'plus-circle',
-                    'class' => 'bg-emerald-500 hover:bg-emerald-400 border-emerald-500 mx-auto',
+                    'class' => 'mx-auto',
                     'attributes' => 'onclick="openAddProjectModal()"'
                 ]); 
                 ?>
@@ -50,25 +54,25 @@
             <?php else: ?>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <?php foreach ($projects as $project): ?>
-                <div class="vf-panel vf-card--elevated flex flex-col justify-between relative overflow-hidden group">
+                <div class="rounded-2xl bg-[#131B2E] border border-[#1E293B] p-5 flex flex-col justify-between relative overflow-hidden group hover:border-emerald-500/40 hover:shadow-[0_0_25px_rgba(16,185,129,0.15)] transition-all duration-300">
                     
                     <!-- Color Ambient Preview -->
-                    <div class="absolute -right-10 -top-10 w-24 h-24 rounded-full blur-2xl opacity-40 transition-all duration-500 group-hover:scale-150" style="background: radial-gradient(circle, <?php echo $project['nebula1']; ?> 0%, <?php echo $project['nebula2']; ?> 100%);"></div>
+                    <div class="absolute -right-10 -top-10 w-28 h-28 rounded-full blur-2xl opacity-40 transition-all duration-500 group-hover:scale-150 pointer-events-none" style="background: radial-gradient(circle, <?php echo $project['nebula1']; ?> 0%, <?php echo $project['nebula2']; ?> 100%);"></div>
 
                     <div>
                         <!-- Image & Title -->
                         <div class="flex gap-4 items-start relative z-10">
-                            <img src="<?php echo htmlspecialchars($project['src']); ?>" alt="<?php echo htmlspecialchars($project['name']); ?>" class="w-20 h-20 rounded-xl object-cover ring-2 ring-slate-800 shrink-0">
+                            <img src="<?php echo htmlspecialchars($project['src']); ?>" alt="<?php echo htmlspecialchars($project['name']); ?>" class="w-20 h-20 rounded-xl object-cover ring-2 ring-[#1E293B] shrink-0">
                             <div class="space-y-1">
-                                <h3 class="text-lg font-bold text-slate-800 dark:text-slate-100 group-hover:text-emerald-400 transition-colors"><?php echo htmlspecialchars($project['name']); ?></h3>
+                                <h3 class="text-lg font-bold text-white group-hover:text-emerald-400 transition-colors"><?php echo htmlspecialchars($project['name']); ?></h3>
                                 
                                 <!-- Color Palette Badges -->
                                 <div class="flex flex-wrap gap-1.5 pt-1">
-                                    <span class="inline-flex items-center gap-1 text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300">
+                                    <span class="inline-flex items-center gap-1.5 text-[10px] font-mono px-2 py-0.5 rounded bg-[#0A0E1A] border border-[#1E293B] text-slate-300">
                                         <span class="w-2.5 h-2.5 rounded-full" style="background-color: <?php echo $project['bg']; ?>;"></span>
                                         Dark: <?php echo $project['bg']; ?>
                                     </span>
-                                    <span class="inline-flex items-center gap-1 text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300">
+                                    <span class="inline-flex items-center gap-1.5 text-[10px] font-mono px-2 py-0.5 rounded bg-[#0A0E1A] border border-[#1E293B] text-slate-300">
                                         <span class="w-2.5 h-2.5 rounded-full" style="background-color: <?php echo $project['nebula1']; ?>;"></span>
                                         Neb1: <?php echo $project['nebula1']; ?>
                                     </span>
@@ -80,14 +84,14 @@
                         <div class="mt-4 space-y-2 text-xs relative z-10">
                             <div>
                                 <span class="text-[10px] font-bold text-cyan-400 uppercase tracking-wider font-mono">EN Description:</span>
-                                <p class="text-slate-600 dark:text-slate-300 mt-0.5 leading-relaxed line-clamp-2"><?php echo htmlspecialchars($project['description']); ?></p>
+                                <p class="text-slate-300 mt-0.5 leading-relaxed line-clamp-2"><?php echo htmlspecialchars($project['description']); ?></p>
                             </div>
                         </div>
 
                         <!-- Tech Stack Tags -->
-                        <div class="mt-4 flex flex-wrap gap-1 relative z-10">
+                        <div class="mt-4 flex flex-wrap gap-1.5 relative z-10">
                             <?php foreach ($project['techStack'] as $tech): ?>
-                            <span class="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-900 text-[10px] font-semibold text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-800">
+                            <span class="px-2 py-0.5 rounded bg-[#0A0E1A] text-[10px] font-mono font-semibold text-slate-300 border border-[#1E293B]">
                                 <?php echo htmlspecialchars($tech); ?>
                             </span>
                             <?php endforeach; ?>
@@ -95,7 +99,7 @@
                     </div>
 
                     <!-- Action buttons -->
-                    <div class="mt-6 flex justify-end gap-2 relative z-10 border-t border-slate-200 dark:border-slate-800/60 pt-4">
+                    <div class="mt-6 flex justify-end gap-2 relative z-10 border-t border-[#1E293B] pt-4">
                         <?php 
                         $this->load->view('components/button', [
                             'text' => 'Edit',
@@ -103,7 +107,7 @@
                             'size' => 'sm',
                             'icon' => 'edit',
                             'class' => 'text-cyan-400 hover:bg-cyan-500/20 border-cyan-500/20',
-                            'attributes' => 'onclick=\'openEditProjectModal('.json_encode($project).')\''
+                            'attributes' => 'onclick="openEditProjectModal('.(int)$project['id'].')"'
                         ]); 
                         ?>
                         <?php 
@@ -125,14 +129,14 @@
 
     <!-- TAB 2: PORTFOLIO SETTINGS & ANIMATIONS -->
     <div id="settings-tab" class="tab-content hidden space-y-6">
-        <form id="portfolio-settings-form" onsubmit="submitPortfolioSettings(event)" class="vf-panel vf-card--elevated space-y-6">
-            <div class="vf-panel__header border-b border-slate-200 dark:border-slate-800 pb-3">
-                <div class="vf-panel__heading">
-                    <h2 class="text-lg font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+        <form id="portfolio-settings-form" onsubmit="submitPortfolioSettings(event)" class="rounded-2xl bg-[#131B2E] border border-[#1E293B] p-6 space-y-6">
+            <div class="border-b border-[#1E293B] pb-4">
+                <div>
+                    <h2 class="text-lg font-bold text-white flex items-center gap-2">
                         <i data-lucide="sliders" class="w-5 h-5 text-emerald-400"></i>
                         <span>Pengaturan Global &amp; Transisi Animasi</span>
                     </h2>
-                    <p class="text-slate-500 dark:text-slate-400 text-xs mt-1">Konfigurasi parameter visual, splash screen, durasi transisi, dan urutan halaman aplikasi 3D Portfolio.</p>
+                    <p class="text-slate-400 text-xs mt-1">Konfigurasi parameter visual, splash screen, durasi transisi, dan urutan halaman aplikasi 3D Portfolio.</p>
                 </div>
             </div>
 
@@ -222,8 +226,8 @@
                 </div>
             </div>
 
-            <div class="border-t border-slate-200 dark:border-slate-800/80 pt-4">
-                <h3 class="text-sm font-bold text-slate-600 dark:text-slate-300 mb-4">Konten Teks Seksi Unggulan</h3>
+            <div class="border-t border-[#1E293B] pt-4">
+                <h3 class="text-sm font-bold text-slate-200 mb-4">Konten Teks Seksi Unggulan</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <?php 
@@ -246,23 +250,23 @@
                         ?>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Deskripsi Singkat (EN)</label>
-                        <textarea id="setting-featured-desc-en" rows="3" class="vf-input w-full  focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"><?php echo htmlspecialchars($settings['featured_desc_en'] ?? ''); ?></textarea>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Deskripsi Singkat (EN)</label>
+                        <textarea id="setting-featured-desc-en" rows="3" class="vf-input w-full focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"><?php echo htmlspecialchars($settings['featured_desc_en'] ?? ''); ?></textarea>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Deskripsi Singkat (ID)</label>
-                        <textarea id="setting-featured-desc-id" rows="3" class="vf-input w-full  focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"><?php echo htmlspecialchars($settings['featured_desc_id'] ?? ''); ?></textarea>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Deskripsi Singkat (ID)</label>
+                        <textarea id="setting-featured-desc-id" rows="3" class="vf-input w-full focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"><?php echo htmlspecialchars($settings['featured_desc_id'] ?? ''); ?></textarea>
                     </div>
                 </div>
             </div>
 
-            <div class="flex justify-end gap-2 border-t border-slate-200 dark:border-slate-800/60 pt-4 mt-6">
+            <div class="flex justify-end gap-2 border-t border-[#1E293B] pt-4 mt-6">
                 <?php 
                 $this->load->view('components/button', [
                     'text' => 'Simpan Semua Pengaturan',
                     'variant' => 'primary',
                     'type' => 'submit',
-                    'class' => 'bg-emerald-500 hover:bg-emerald-400 border-emerald-500 text-slate-950 shadow-emerald-500/20'
+                    'class' => 'shadow-emerald-500/20'
                 ]); 
                 ?>
             </div>
@@ -277,13 +281,13 @@
             <div class="flex-1 min-w-0 overflow-y-auto space-y-4 pr-1">
 
                 <!-- Section: Splash -->
-                <div class="vf-panel p-0 overflow-hidden">
-                    <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200 dark:border-slate-800/80 bg-violet-500/5">
+                <div class="rounded-2xl bg-[#131B2E] border border-[#1E293B] p-0 overflow-hidden">
+                    <div class="flex items-center justify-between px-5 py-4 border-b border-[#1E293B] bg-violet-500/5">
                         <div class="flex items-center gap-3">
                             <div class="w-2 h-8 rounded-full bg-violet-500"></div>
                             <div>
-                                <h3 class="font-bold text-slate-800 dark:text-slate-100 text-sm">Section: SPLASH SCREEN</h3>
-                                <p class="text-slate-500 text-xs">Layar loading pertama saat halaman dibuka</p>
+                                <h3 class="font-bold text-white text-sm">Section: SPLASH SCREEN</h3>
+                                <p class="text-slate-400 text-xs">Layar loading pertama saat halaman dibuka</p>
                             </div>
                         </div>
                         <label class="layout-toggle-section" data-section="splash">
@@ -303,14 +307,14 @@
                             $comp = $splash_comps[$key] ?? ['enabled' => true];
                             $enabled = $comp['enabled'] ?? true;
                         ?>
-                        <div class="comp-row flex items-center gap-3 p-3 rounded-xl bg-slate-100/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/60 hover:border-violet-500/30 transition-colors" data-section="splash" data-comp="<?php echo $key; ?>">
+                        <div class="comp-row flex items-center gap-3 p-3 rounded-xl bg-[#0A0E1A] border border-[#1E293B] hover:border-violet-500/40 transition-colors" data-section="splash" data-comp="<?php echo $key; ?>">
                             <div class="w-8 h-8 rounded-lg bg-violet-500/10 flex items-center justify-center shrink-0">
                                 <i data-lucide="<?php echo $def['icon']; ?>" class="w-4 h-4 text-violet-400"></i>
                             </div>
                             <div class="flex-1 min-w-0">
-                                <p class="text-sm font-semibold text-slate-700 dark:text-slate-200"><?php echo $def['label']; ?></p>
+                                <p class="text-sm font-semibold text-slate-200"><?php echo $def['label']; ?></p>
                                 <?php if (!empty($def['has_text'])): ?>
-                                <input type="text" class="comp-text-input mt-1 w-full px-2 py-1 rounded-lg bg-slate-800 border border-slate-300 dark:border-slate-700 text-xs text-slate-600 dark:text-slate-300 focus:outline-none focus:border-violet-500 font-mono"
+                                <input type="text" class="comp-text-input mt-1 w-full px-2.5 py-1.5 rounded-lg bg-[#131B2E] border border-[#1E293B] text-xs text-slate-200 focus:outline-none focus:border-violet-500 font-mono"
                                     data-section="splash" data-comp="<?php echo $key; ?>" data-prop="<?php echo $def['text_key']; ?>"
                                     placeholder="<?php echo $def['text_label']; ?>"
                                     value="<?php echo htmlspecialchars($comp[$def['text_key']] ?? 'STUDIO'); ?>">
@@ -326,13 +330,13 @@
                 </div>
 
                 <!-- Section: Hero -->
-                <div class="vf-panel p-0 overflow-hidden">
-                    <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200 dark:border-slate-800/80 bg-cyan-500/5">
+                <div class="rounded-2xl bg-[#131B2E] border border-[#1E293B] p-0 overflow-hidden">
+                    <div class="flex items-center justify-between px-5 py-4 border-b border-[#1E293B] bg-cyan-500/5">
                         <div class="flex items-center gap-3">
                             <div class="w-2 h-8 rounded-full bg-cyan-500"></div>
                             <div>
-                                <h3 class="font-bold text-slate-800 dark:text-slate-100 text-sm">Section: HERO / CAROUSEL</h3>
-                                <p class="text-slate-500 text-xs">Halaman utama dengan carousel 3D interaktif</p>
+                                <h3 class="font-bold text-white text-sm">Section: HERO / CAROUSEL</h3>
+                                <p class="text-slate-400 text-xs">Halaman utama dengan carousel 3D interaktif</p>
                             </div>
                         </div>
                         <label class="layout-toggle-section" data-section="hero">
@@ -361,30 +365,30 @@
                             $comp = $hero_comps[$key] ?? ['enabled' => true];
                             $enabled = $comp['enabled'] ?? true;
                         ?>
-                        <div class="comp-row p-3 rounded-xl bg-slate-100/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/60 hover:border-cyan-500/30 transition-colors" data-section="hero" data-comp="<?php echo $key; ?>">
+                        <div class="comp-row p-3 rounded-xl bg-[#0A0E1A] border border-[#1E293B] hover:border-cyan-500/40 transition-colors" data-section="hero" data-comp="<?php echo $key; ?>">
                             <div class="flex items-center gap-3">
                                 <div class="w-8 h-8 rounded-lg bg-cyan-500/10 flex items-center justify-center shrink-0">
                                     <i data-lucide="<?php echo $def['icon']; ?>" class="w-4 h-4 text-cyan-400"></i>
                                 </div>
-                                <p class="flex-1 text-sm font-semibold text-slate-700 dark:text-slate-200"><?php echo $def['label']; ?></p>
+                                <p class="flex-1 text-sm font-semibold text-slate-200"><?php echo $def['label']; ?></p>
                                 <label class="comp-toggle shrink-0" data-section="hero" data-comp="<?php echo $key; ?>">
                                     <input type="checkbox" class="sr-only comp-enabled" data-section="hero" data-comp="<?php echo $key; ?>" <?php echo $enabled ? 'checked' : ''; ?>>
                                     <div class="toggle-track-sm"></div>
                                 </label>
                             </div>
                             <?php if (!empty($def['has_text'])): ?>
-                            <input type="text" class="comp-text-input mt-2 w-full px-2 py-1 rounded-lg bg-slate-800 border border-slate-300 dark:border-slate-700 text-xs text-slate-600 dark:text-slate-300 focus:outline-none focus:border-cyan-500 font-mono"
+                            <input type="text" class="comp-text-input mt-2 w-full px-2.5 py-1.5 rounded-lg bg-[#131B2E] border border-[#1E293B] text-xs text-slate-200 focus:outline-none focus:border-cyan-500 font-mono"
                                 data-section="hero" data-comp="<?php echo $key; ?>" data-prop="<?php echo $def['text_key']; ?>"
                                 placeholder="<?php echo $def['text_label']; ?>"
                                 value="<?php echo htmlspecialchars($comp[$def['text_key']] ?? ''); ?>">
                             <?php endif; ?>
                             <?php if (!empty($def['has_bi_text'])): ?>
                             <div class="grid grid-cols-2 gap-2 mt-2">
-                                <input type="text" class="comp-text-input px-2 py-1 rounded-lg bg-slate-800 border border-slate-300 dark:border-slate-700 text-xs text-slate-600 dark:text-slate-300 focus:outline-none focus:border-cyan-500"
+                                <input type="text" class="comp-text-input px-2.5 py-1.5 rounded-lg bg-[#131B2E] border border-[#1E293B] text-xs text-slate-200 focus:outline-none focus:border-cyan-500"
                                     data-section="hero" data-comp="<?php echo $key; ?>" data-prop="<?php echo $def['prop_en']; ?>"
                                     placeholder="<?php echo $def['label_en']; ?>"
                                     value="<?php echo htmlspecialchars($comp[$def['prop_en']] ?? ''); ?>">
-                                <input type="text" class="comp-text-input px-2 py-1 rounded-lg bg-slate-800 border border-slate-300 dark:border-slate-700 text-xs text-slate-600 dark:text-slate-300 focus:outline-none focus:border-cyan-500"
+                                <input type="text" class="comp-text-input px-2.5 py-1.5 rounded-lg bg-[#131B2E] border border-[#1E293B] text-xs text-slate-200 focus:outline-none focus:border-cyan-500"
                                     data-section="hero" data-comp="<?php echo $key; ?>" data-prop="<?php echo $def['prop_id']; ?>"
                                     placeholder="<?php echo $def['label_id']; ?>"
                                     value="<?php echo htmlspecialchars($comp[$def['prop_id']] ?? ''); ?>">
@@ -394,8 +398,8 @@
                             <div class="grid grid-cols-3 gap-2 mt-2">
                                 <?php foreach ($def['props'] as $prop_key => $prop_def): ?>
                                 <div>
-                                    <label class="block text-[10px] text-slate-500 mb-0.5"><?php echo $prop_def['label']; ?></label>
-                                    <input type="<?php echo $prop_def['type']; ?>" class="comp-text-input w-full px-2 py-1 rounded-lg bg-slate-800 border border-slate-300 dark:border-slate-700 text-xs text-slate-600 dark:text-slate-300 focus:outline-none focus:border-cyan-500 font-mono"
+                                    <label class="block text-[10px] text-slate-400 mb-0.5"><?php echo $prop_def['label']; ?></label>
+                                    <input type="<?php echo $prop_def['type']; ?>" class="comp-text-input w-full px-2.5 py-1.5 rounded-lg bg-[#131B2E] border border-[#1E293B] text-xs text-slate-200 focus:outline-none focus:border-cyan-500 font-mono"
                                         data-section="hero" data-comp="<?php echo $key; ?>" data-prop="<?php echo $prop_key; ?>"
                                         <?php if (!empty($prop_def['min'])) echo 'min="'.$prop_def['min'].'"'; ?>
                                         <?php if (!empty($prop_def['max'])) echo 'max="'.$prop_def['max'].'"'; ?>
@@ -410,13 +414,13 @@
                 </div>
 
                 <!-- Section: Discover -->
-                <div class="vf-panel p-0 overflow-hidden">
-                    <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200 dark:border-slate-800/80 bg-emerald-500/5">
+                <div class="rounded-2xl bg-[#131B2E] border border-[#1E293B] p-0 overflow-hidden">
+                    <div class="flex items-center justify-between px-5 py-4 border-b border-[#1E293B] bg-emerald-500/5">
                         <div class="flex items-center gap-3">
                             <div class="w-2 h-8 rounded-full bg-emerald-500"></div>
                             <div>
-                                <h3 class="font-bold text-slate-800 dark:text-slate-100 text-sm">Section: DISCOVER / GRID</h3>
-                                <p class="text-slate-500 text-xs">Grid semua proyek portofolio di bawah hero</p>
+                                <h3 class="font-bold text-white text-sm">Section: DISCOVER / GRID</h3>
+                                <p class="text-slate-400 text-xs">Grid semua proyek portofolio di bawah hero</p>
                             </div>
                         </div>
                         <label class="layout-toggle-section" data-section="discover">
@@ -444,12 +448,12 @@
                             $comp = $disc_comps[$key] ?? ['enabled' => true];
                             $enabled = $comp['enabled'] ?? true;
                         ?>
-                        <div class="comp-row p-3 rounded-xl bg-slate-100/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/60 hover:border-emerald-500/30 transition-colors" data-section="discover" data-comp="<?php echo $key; ?>">
+                        <div class="comp-row p-3 rounded-xl bg-[#0A0E1A] border border-[#1E293B] hover:border-emerald-500/40 transition-colors" data-section="discover" data-comp="<?php echo $key; ?>">
                             <div class="flex items-center gap-3">
                                 <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center shrink-0">
                                     <i data-lucide="<?php echo $def['icon']; ?>" class="w-4 h-4 text-emerald-400"></i>
                                 </div>
-                                <p class="flex-1 text-sm font-semibold text-slate-700 dark:text-slate-200"><?php echo $def['label']; ?></p>
+                                <p class="flex-1 text-sm font-semibold text-slate-200"><?php echo $def['label']; ?></p>
                                 <label class="comp-toggle shrink-0">
                                     <input type="checkbox" class="sr-only comp-enabled" data-section="discover" data-comp="<?php echo $key; ?>" <?php echo $enabled ? 'checked' : ''; ?>>
                                     <div class="toggle-track-sm"></div>
@@ -459,8 +463,8 @@
                             <div class="grid grid-cols-3 gap-2 mt-2">
                                 <?php foreach ($def['props'] as $prop_key => $prop_def): ?>
                                 <div>
-                                    <label class="block text-[10px] text-slate-500 mb-0.5"><?php echo $prop_def['label']; ?></label>
-                                    <input type="<?php echo $prop_def['type']; ?>" class="comp-text-input w-full px-2 py-1 rounded-lg bg-slate-800 border border-slate-300 dark:border-slate-700 text-xs text-slate-600 dark:text-slate-300 focus:outline-none focus:border-emerald-500 font-mono"
+                                    <label class="block text-[10px] text-slate-400 mb-0.5"><?php echo $prop_def['label']; ?></label>
+                                    <input type="<?php echo $prop_def['type']; ?>" class="comp-text-input w-full px-2.5 py-1.5 rounded-lg bg-[#131B2E] border border-[#1E293B] text-xs text-slate-200 focus:outline-none focus:border-emerald-500 font-mono"
                                         data-section="discover" data-comp="<?php echo $key; ?>" data-prop="<?php echo $prop_key; ?>"
                                         <?php if (!empty($prop_def['min'])) echo 'min="'.$prop_def['min'].'"'; ?>
                                         <?php if (!empty($prop_def['max'])) echo 'max="'.$prop_def['max'].'"'; ?>
@@ -475,13 +479,13 @@
                 </div>
 
                 <!-- Section: Background -->
-                <div class="vf-panel p-0 overflow-hidden">
-                    <div class="flex items-center justify-between px-5 py-4 border-b border-slate-200 dark:border-slate-800/80 bg-amber-500/5">
+                <div class="rounded-2xl bg-[#131B2E] border border-[#1E293B] p-0 overflow-hidden">
+                    <div class="flex items-center justify-between px-5 py-4 border-b border-[#1E293B] bg-amber-500/5">
                         <div class="flex items-center gap-3">
                             <div class="w-2 h-8 rounded-full bg-amber-500"></div>
                             <div>
-                                <h3 class="font-bold text-slate-800 dark:text-slate-100 text-sm">Layer: BACKGROUND / ENVIRONMENT</h3>
-                                <p class="text-slate-500 text-xs">Elemen latar belakang luar angkasa</p>
+                                <h3 class="font-bold text-white text-sm">Layer: BACKGROUND / ENVIRONMENT</h3>
+                                <p class="text-slate-400 text-xs">Elemen latar belakang luar angkasa</p>
                             </div>
                         </div>
                     </div>
@@ -501,12 +505,12 @@
                             $comp = $bg[$key] ?? ['enabled' => true];
                             $enabled = $comp['enabled'] ?? true;
                         ?>
-                        <div class="comp-row p-3 rounded-xl bg-slate-100/60 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/60 hover:border-amber-500/30 transition-colors" data-section="background" data-comp="<?php echo $key; ?>">
+                        <div class="comp-row p-3 rounded-xl bg-[#0A0E1A] border border-[#1E293B] hover:border-amber-500/40 transition-colors" data-section="background" data-comp="<?php echo $key; ?>">
                             <div class="flex items-center gap-3">
                                 <div class="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center shrink-0">
                                     <i data-lucide="<?php echo $def['icon']; ?>" class="w-4 h-4 text-amber-400"></i>
                                 </div>
-                                <p class="flex-1 text-sm font-semibold text-slate-700 dark:text-slate-200"><?php echo $def['label']; ?></p>
+                                <p class="flex-1 text-sm font-semibold text-slate-200"><?php echo $def['label']; ?></p>
                                 <label class="comp-toggle shrink-0">
                                     <input type="checkbox" class="sr-only comp-enabled" data-section="background" data-comp="<?php echo $key; ?>" <?php echo $enabled ? 'checked' : ''; ?>>
                                     <div class="toggle-track-sm"></div>
@@ -516,8 +520,8 @@
                             <div class="grid grid-cols-3 gap-2 mt-2">
                                 <?php foreach ($def['props'] as $prop_key => $prop_def): ?>
                                 <div>
-                                    <label class="block text-[10px] text-slate-500 mb-0.5"><?php echo $prop_def['label']; ?></label>
-                                    <input type="<?php echo $prop_def['type']; ?>" class="comp-text-input w-full px-2 py-1 rounded-lg bg-slate-800 border border-slate-300 dark:border-slate-700 text-xs text-slate-600 dark:text-slate-300 focus:outline-none focus:border-amber-500 font-mono"
+                                    <label class="block text-[10px] text-slate-400 mb-0.5"><?php echo $prop_def['label']; ?></label>
+                                    <input type="<?php echo $prop_def['type']; ?>" class="comp-text-input w-full px-2.5 py-1.5 rounded-lg bg-[#131B2E] border border-[#1E293B] text-xs text-slate-200 focus:outline-none focus:border-amber-500 font-mono"
                                         data-section="background" data-comp="<?php echo $key; ?>" data-prop="<?php echo $prop_key; ?>"
                                         <?php if (!empty($prop_def['min'])) echo 'min="'.$prop_def['min'].'"'; ?>
                                         <?php if (!empty($prop_def['max'])) echo 'max="'.$prop_def['max'].'"'; ?>
@@ -533,10 +537,10 @@
 
                 <!-- Save Button -->
                 <div class="flex justify-end gap-3 pt-2">
-                    <button onclick="resetLayout()" class="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-semibold text-sm transition cursor-pointer">
+                    <button onclick="resetLayout()" class="px-5 py-2.5 rounded-xl bg-[#1E293B] hover:bg-[#253147] text-slate-300 hover:text-white border border-[#334155] font-semibold text-sm transition cursor-pointer">
                         Reset ke Default
                     </button>
-                    <button onclick="submitLayoutConfig()" id="save-layout-btn" class="px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-sm transition shadow-lg shadow-emerald-500/20 cursor-pointer flex items-center gap-2">
+                    <button onclick="submitLayoutConfig()" id="save-layout-btn" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 text-white font-bold text-sm transition shadow-lg shadow-emerald-500/25 border border-emerald-500/40 cursor-pointer flex items-center gap-2">
                         <i data-lucide="save" class="w-4 h-4"></i>
                         Simpan Konfigurasi Layout
                     </button>
@@ -545,45 +549,45 @@
 
             <!-- RIGHT: Live Portfolio Preview (iframe) -->
             <div class="shrink-0 w-80 xl:w-96" style="position: sticky; top: 0; height: calc(100vh - 130px);">
-                <div class="vf-panel p-0 overflow-hidden h-full flex flex-col">
+                <div class="rounded-2xl bg-[#131B2E] border border-[#1E293B] p-0 overflow-hidden h-full flex flex-col shadow-lg">
 
                     <!-- Header -->
-                    <div class="px-4 py-3 border-b border-slate-200 dark:border-slate-800/80 flex items-center gap-2 shrink-0">
+                    <div class="px-4 py-3 border-b border-[#1E293B] flex items-center gap-2 shrink-0">
                         <i data-lucide="globe" class="w-4 h-4 text-emerald-400 shrink-0"></i>
-                        <h3 class="font-bold text-slate-600 dark:text-slate-300 text-sm shrink-0">Live Preview</h3>
-                        <span class="ml-auto text-[10px] text-emerald-400 font-semibold tracking-wider bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 shrink-0">LIVE</span>
+                        <h3 class="font-bold text-slate-200 text-sm shrink-0">Live Preview</h3>
+                        <span class="ml-auto text-[10px] text-emerald-400 font-semibold tracking-wider bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/30 shrink-0">LIVE</span>
                     </div>
 
                     <!-- URL Bar -->
-                    <div class="px-3 py-2.5 border-b border-slate-200 dark:border-slate-800/60 flex items-center gap-2 shrink-0 bg-slate-100/40 dark:bg-slate-900/40">
-                        <div class="flex-1 flex items-center gap-1.5 bg-white dark:bg-[#0A0E1A] border border-slate-200 dark:border-slate-800 rounded-lg px-2.5 py-1.5 focus-within:border-emerald-500/60 transition-colors">
+                    <div class="px-3 py-2.5 border-b border-[#1E293B] flex items-center gap-2 shrink-0 bg-[#0A0E1A]">
+                        <div class="flex-1 flex items-center gap-1.5 bg-[#131B2E] border border-[#1E293B] rounded-lg px-2.5 py-1.5 focus-within:border-emerald-500/60 transition-colors">
                             <i data-lucide="link" class="w-3 h-3 text-slate-500 shrink-0"></i>
                             <input
                                 type="url"
                                 id="preview-iframe-url"
                                 value="http://localhost:3000"
                                 placeholder="https://yourportfolio.com"
-                                class="flex-1 bg-transparent text-[11px] text-slate-600 dark:text-slate-300 font-mono focus:outline-none placeholder-slate-600 min-w-0"
+                                class="flex-1 bg-transparent text-[11px] text-slate-200 font-mono focus:outline-none placeholder-slate-500 min-w-0"
                                 onkeydown="if(event.key==='Enter') loadPreviewIframe()"
                             >
                         </div>
                         <button onclick="loadPreviewIframe()" title="Muat URL" class="p-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 transition cursor-pointer shrink-0">
                             <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
                         </button>
-                        <button onclick="openPreviewExternal()" title="Buka di Tab Baru" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-500 dark:text-slate-400 hover:text-white border border-slate-300 dark:border-slate-700 transition cursor-pointer shrink-0">
+                        <button onclick="openPreviewExternal()" title="Buka di Tab Baru" class="p-1.5 rounded-lg bg-[#1E293B] hover:bg-[#253147] text-slate-400 hover:text-white border border-[#334155] transition cursor-pointer shrink-0">
                             <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
                         </button>
                     </div>
 
                     <!-- iframe Container -->
-                    <div class="flex-1 relative overflow-hidden bg-slate-950">
+                    <div class="flex-1 relative overflow-hidden bg-[#0A0E1A]">
                         <!-- Loading state -->
-                        <div id="preview-loading" class="absolute inset-0 flex flex-col items-center justify-center gap-3 z-10 bg-slate-950">
+                        <div id="preview-loading" class="absolute inset-0 flex flex-col items-center justify-center gap-3 z-10 bg-[#0A0E1A]">
                             <div class="w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center">
                                 <i data-lucide="globe" class="w-5 h-5 text-emerald-400"></i>
                             </div>
-                            <p class="text-xs text-slate-500 dark:text-slate-400 font-semibold">Klik <span class="text-emerald-400">↺</span> untuk memuat preview</p>
-                            <p class="text-[10px] text-slate-600 text-center max-w-[180px]">Pastikan dev server portofolio sudah berjalan di URL yang ditentukan</p>
+                            <p class="text-xs text-slate-300 font-semibold">Klik <span class="text-emerald-400">↺</span> untuk memuat preview</p>
+                            <p class="text-[10px] text-slate-500 text-center max-w-[180px]">Pastikan dev server portofolio sudah berjalan di URL yang ditentukan</p>
                         </div>
                         <!-- iframe -->
                         <iframe
@@ -597,9 +601,9 @@
                     </div>
 
                     <!-- Footer hint -->
-                    <div class="px-4 py-2.5 border-t border-slate-200 dark:border-slate-800/60 shrink-0 flex items-center justify-between">
-                        <p class="text-[10px] text-slate-600">Preview dari URL dev server portofolio</p>
-                        <button onclick="toggleIframeScale()" id="iframe-scale-btn" title="Toggle Scale" class="text-[10px] text-slate-500 hover:text-slate-600 dark:text-slate-300 font-mono transition cursor-pointer">
+                    <div class="px-4 py-2.5 border-t border-[#1E293B] shrink-0 flex items-center justify-between">
+                        <p class="text-[10px] text-slate-500">Preview dari URL dev server portofolio</p>
+                        <button onclick="toggleIframeScale()" id="iframe-scale-btn" title="Toggle Scale" class="text-[10px] text-slate-400 hover:text-slate-200 font-mono transition cursor-pointer">
                             100%
                         </button>
                     </div>
@@ -617,7 +621,7 @@
 <form id="project-form" onsubmit="submitProject(event)" class="vf-stack vf-stack--gap-md max-h-[70vh] overflow-y-auto pr-2">
     <input type="hidden" id="project-id" name="id">
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
         <div>
             <?php 
             $this->load->view('components/input', [
@@ -630,77 +634,91 @@
             ?>
         </div>
         <div>
-            <?php 
-            $this->load->view('components/input', [
-                'name' => '',
-                'id' => 'project-src',
-                'type' => 'url',
-                'label' => 'URL Gambar',
-                'placeholder' => 'https://images.unsplash.com/...',
-                'required' => true
-            ]); 
-            ?>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center justify-between">
+                <span>Gambar Proyek *</span>
+                <span id="project-upload-status" class="text-[10px] text-cyan-400 font-mono hidden"></span>
+            </label>
+            <div class="flex items-center gap-2">
+                <!-- Thumbnail Preview -->
+                <div class="relative w-10 h-10 shrink-0 rounded-lg overflow-hidden bg-[#0A0E1A] border border-[#1E293B] flex items-center justify-center cursor-pointer hover:border-cyan-500/50 transition-colors" onclick="document.getElementById('project-image-file').click()" title="Klik untuk ganti / upload gambar">
+                    <img id="project-preview-img" src="" alt="Preview" class="w-full h-full object-cover hidden">
+                    <div id="project-preview-placeholder" class="text-slate-500 flex items-center justify-center">
+                        <i data-lucide="image" class="w-4 h-4"></i>
+                    </div>
+                </div>
+
+                <!-- URL text input -->
+                <input type="text" id="project-src" required placeholder="https://... atau upload file" class="vf-input flex-1 text-xs" oninput="updateProjectImagePreview(this.value)">
+
+                <!-- Hidden file input & Upload button -->
+                <input type="file" id="project-image-file" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml" class="hidden" onchange="uploadProjectImage(this)">
+                <button type="button" id="btn-upload-image" onclick="document.getElementById('project-image-file').click()" class="vf-button vf-button--subtle shrink-0 px-2.5 py-1.5 text-xs flex items-center gap-1 border-[#1E293B] hover:border-cyan-500/50" title="Upload gambar dari komputer">
+                    <i data-lucide="upload-cloud" class="w-3.5 h-3.5 text-cyan-400"></i>
+                    <span>Upload</span>
+                </button>
+            </div>
+            <p class="text-[10px] text-slate-500 mt-1">Bisa gunakan URL web atau klik <strong>Upload</strong> untuk memilih file gambar dari komputer.</p>
         </div>
     </div>
 
     <div>
-        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-2">Palet Warna &amp; Glow (3D Ambient)</label>
+        <label class="block text-xs font-semibold text-slate-300 mb-2">Palet Warna &amp; Glow (3D Ambient)</label>
         <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
             <div>
-                <span class="block text-[10px] text-slate-500 font-semibold mb-1">Dark Bg</span>
-                <input type="color" id="project-bg" value="#040614" class="w-full h-9 rounded-lg bg-white dark:bg-[#0A0E1A] border border-slate-200 dark:border-slate-800 p-1 cursor-pointer">
+                <span class="block text-[10px] text-slate-400 font-semibold mb-1">Dark Bg</span>
+                <input type="color" id="project-bg" value="#040614" class="w-full h-9 rounded-lg bg-[#0A0E1A] border border-[#1E293B] p-1 cursor-pointer">
             </div>
             <div>
-                <span class="block text-[10px] text-slate-500 font-semibold mb-1">Light Bg</span>
-                <input type="color" id="project-lightBg" value="#0f172a" class="w-full h-9 rounded-lg bg-white dark:bg-[#0A0E1A] border border-slate-200 dark:border-slate-800 p-1 cursor-pointer">
+                <span class="block text-[10px] text-slate-400 font-semibold mb-1">Light Bg</span>
+                <input type="color" id="project-lightBg" value="#0f172a" class="w-full h-9 rounded-lg bg-[#0A0E1A] border border-[#1E293B] p-1 cursor-pointer">
             </div>
             <div>
-                <span class="block text-[10px] text-slate-500 font-semibold mb-1">Nebula 1</span>
-                <input type="color" id="project-nebula1" value="#6366f1" class="w-full h-9 rounded-lg bg-white dark:bg-[#0A0E1A] border border-slate-200 dark:border-slate-800 p-1 cursor-pointer">
+                <span class="block text-[10px] text-slate-400 font-semibold mb-1">Nebula 1</span>
+                <input type="color" id="project-nebula1" value="#6366f1" class="w-full h-9 rounded-lg bg-[#0A0E1A] border border-[#1E293B] p-1 cursor-pointer">
             </div>
             <div>
-                <span class="block text-[10px] text-slate-500 font-semibold mb-1">Nebula 2</span>
-                <input type="color" id="project-nebula2" value="#06b6d4" class="w-full h-9 rounded-lg bg-white dark:bg-[#0A0E1A] border border-slate-200 dark:border-slate-800 p-1 cursor-pointer">
+                <span class="block text-[10px] text-slate-400 font-semibold mb-1">Nebula 2</span>
+                <input type="color" id="project-nebula2" value="#06b6d4" class="w-full h-9 rounded-lg bg-[#0A0E1A] border border-[#1E293B] p-1 cursor-pointer">
             </div>
             <div>
-                <span class="block text-[10px] text-slate-500 font-semibold mb-1">Aura Glow</span>
-                <input type="color" id="project-aura" value="#818cf8" class="w-full h-9 rounded-lg bg-white dark:bg-[#0A0E1A] border border-slate-200 dark:border-slate-800 p-1 cursor-pointer">
+                <span class="block text-[10px] text-slate-400 font-semibold mb-1">Aura Glow</span>
+                <input type="color" id="project-aura" value="#818cf8" class="w-full h-9 rounded-lg bg-[#0A0E1A] border border-[#1E293B] p-1 cursor-pointer">
             </div>
         </div>
     </div>
 
     <div>
-        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">Deskripsi Proyek (English)</label>
-        <textarea id="project-description" required rows="3" placeholder="Describe the project..." class="vf-input w-full  focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 leading-relaxed"></textarea>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Deskripsi Proyek (English)</label>
+        <textarea id="project-description" required rows="3" placeholder="Describe the project..." class="vf-input w-full focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 leading-relaxed"></textarea>
     </div>
     <div>
-        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">Deskripsi Proyek (Indonesian)</label>
-        <textarea id="project-description-id" required rows="3" placeholder="Deskripsikan proyek..." class="vf-input w-full  focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 leading-relaxed"></textarea>
+        <label class="block text-xs font-semibold text-slate-300 mb-1.5">Deskripsi Proyek (Indonesian)</label>
+        <textarea id="project-description-id" required rows="3" placeholder="Deskripsikan proyek..." class="vf-input w-full focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 leading-relaxed"></textarea>
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div>
-            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">Fitur Utama (EN)</label>
-            <textarea id="project-features" rows="4" placeholder="Real-time chart&#10;Widget layout&#10;PDF Reports" class="vf-input w-full  text-xs text-slate-700 dark:text-slate-200 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"></textarea>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Fitur Utama (EN)</label>
+            <textarea id="project-features" rows="4" placeholder="Real-time chart&#10;Widget layout&#10;PDF Reports" class="vf-input w-full text-xs text-slate-200 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"></textarea>
         </div>
         <div>
-            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">Fitur Utama (ID)</label>
-            <textarea id="project-features-id" rows="4" placeholder="Grafik real-time&#10;Tata letak widget&#10;Laporan PDF" class="vf-input w-full  text-xs text-slate-700 dark:text-slate-200 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"></textarea>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Fitur Utama (ID)</label>
+            <textarea id="project-features-id" rows="4" placeholder="Grafik real-time&#10;Tata letak widget&#10;Laporan PDF" class="vf-input w-full text-xs text-slate-200 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"></textarea>
         </div>
         <div>
-            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">Tech Stack</label>
-            <textarea id="project-techStack" rows="4" placeholder="React&#10;TypeScript&#10;Tailwind CSS&#10;Node.js" class="vf-input w-full  text-xs text-slate-700 dark:text-slate-200 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"></textarea>
+            <label class="block text-xs font-semibold text-slate-300 mb-1.5">Tech Stack</label>
+            <textarea id="project-techStack" rows="4" placeholder="React&#10;TypeScript&#10;Tailwind CSS&#10;Node.js" class="vf-input w-full text-xs text-slate-200 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"></textarea>
         </div>
     </div>
 
-    <div class="flex justify-end gap-2 pt-4 mt-2">
+    <div class="flex justify-end gap-2 pt-4 mt-2 border-t border-[#1E293B]">
         <button type="button" onclick="closeProjectModal()" class="vf-button vf-button--subtle">Batal</button>
         <?php 
         $this->load->view('components/button', [
             'text' => 'Simpan',
             'variant' => 'primary',
             'type' => 'submit',
-            'class' => 'bg-emerald-500 hover:bg-emerald-400 border-emerald-500 text-slate-950 shadow-emerald-500/20'
+            'class' => 'shadow-emerald-500/20'
         ]); 
         ?>
     </div>
@@ -709,11 +727,13 @@
 $projectForm = ob_get_clean();
 $this->load->view('components/modal', [
     'id' => 'modal-project',
+    'title_id' => 'project-modal-title',
     'title' => 'Tambah Proyek Portofolio',
     'icon' => 'folder-git',
     'content' => $projectForm,
     'onClose' => 'closeProjectModal()',
-    'class' => 'max-w-2xl'
+    'class' => 'max-w-2xl',
+    'hide_actions' => true
 ]);
 ?>
 
@@ -767,8 +787,8 @@ input:checked ~ .toggle-track-sm::after { transform: translateX(16px); }
     ?>
 
     <div>
-        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Category</label>
-        <select name="category" class="vf-input w-full  focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500">
+        <label class="block text-xs font-semibold text-slate-300 mb-1">Category</label>
+        <select name="category" class="vf-input w-full focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500">
             <option value="3d_portfolio">3D Portfolio</option>
             <option value="saas_tenant">SaaS Multi-Tenant</option>
             <option value="external_app">External Managed App</option>
@@ -776,8 +796,8 @@ input:checked ~ .toggle-track-sm::after { transform: translateX(16px); }
     </div>
 
     <div>
-        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Description</label>
-        <textarea name="description" rows="3" placeholder="Deskripsi aplikasi atau lokasi direktori..." class="vf-input w-full  focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"></textarea>
+        <label class="block text-xs font-semibold text-slate-300 mb-1">Description</label>
+        <textarea name="description" rows="3" placeholder="Deskripsi aplikasi atau lokasi direktori..." class="vf-input w-full focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"></textarea>
     </div>
 
     <div class="p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-xs text-cyan-300 flex items-start gap-2 mt-4">
@@ -788,7 +808,7 @@ input:checked ~ .toggle-track-sm::after { transform: translateX(16px); }
         </div>
     </div>
 
-    <div class="flex justify-end gap-2 pt-4 mt-2">
+    <div class="flex justify-end gap-2 pt-4 mt-2 border-t border-[#1E293B]">
         <button type="button" onclick="closeRegisterAppModal()" class="vf-button vf-button--subtle">Batal</button>
         <button type="submit" id="submitRegisterBtn" class="vf-button vf-button--primary">
             <span class="vf-button__label flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4"></i> Register &amp; Provision DB</span>

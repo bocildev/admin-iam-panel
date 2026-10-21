@@ -27,18 +27,18 @@
         <!-- Applications Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <?php if (empty($applications)): ?>
-            <div class="col-span-full vf-panel vf-card--elevated text-center py-12 space-y-4">
+            <div class="col-span-full rounded-2xl bg-[#131B2E] border border-[#1E293B] text-center py-12 space-y-4">
                 <div class="w-16 h-16 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center mx-auto text-cyan-400">
                     <i data-lucide="layers" class="w-8 h-8"></i>
                 </div>
                 <div>
-                    <h3 class="text-lg font-bold text-slate-700 dark:text-slate-200">Belum Ada Aplikasi Terdaftar</h3>
-                    <p class="text-slate-500 dark:text-slate-400 text-xs mt-1 max-w-md mx-auto">Klik tombol di atas untuk mendaftarkan aplikasi multi-tenant baru Anda.</p>
+                    <h3 class="text-lg font-bold text-slate-200">Belum Ada Aplikasi Terdaftar</h3>
+                    <p class="text-slate-400 text-xs mt-1 max-w-md mx-auto">Klik tombol di atas untuk mendaftarkan aplikasi multi-tenant baru Anda.</p>
                 </div>
             </div>
             <?php else: ?>
             <?php foreach ($applications as $app): ?>
-            <div class="vf-panel vf-card--elevated flex flex-col justify-between relative overflow-hidden group">
+            <div class="rounded-2xl bg-[#131B2E] border border-[#1E293B] p-5 flex flex-col justify-between relative overflow-hidden group hover:border-cyan-500/40 hover:shadow-[0_0_20px_rgba(6,182,212,0.15)] transition-all duration-300">
                 <div class="space-y-4">
                     <div class="flex items-start justify-between">
                         <div>
@@ -50,7 +50,7 @@
                             ]); 
                             ?>
                             <h3 class="text-lg font-extrabold text-white mt-1.5"><?php echo htmlspecialchars($app['name']); ?></h3>
-                            <p class="text-xs text-slate-500 dark:text-slate-400 font-mono">slug: <?php echo htmlspecialchars($app['slug']); ?></p>
+                            <p class="text-xs text-slate-400 font-mono">slug: <?php echo htmlspecialchars($app['slug']); ?></p>
                         </div>
                         <?php 
                         $this->load->view('components/badge', [
@@ -60,24 +60,24 @@
                         ]); 
                         ?>
                     </div>
-                    <p class="text-xs text-slate-600 dark:text-slate-300"><?php echo htmlspecialchars($app['description']); ?></p>
+                    <p class="text-xs text-slate-300"><?php echo htmlspecialchars($app['description']); ?></p>
 
                     <!-- Database Provisioning Metadata Card -->
-                    <div class="p-4 rounded-xl bg-white dark:bg-[#0A0E1A] border border-slate-200 dark:border-slate-800 space-y-2.5">
+                    <div class="p-4 rounded-xl bg-[#0A0E1A] border border-[#1E293B] space-y-2.5">
                         <div class="flex items-center justify-between text-xs font-mono">
-                            <span class="text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+                            <span class="text-slate-400 flex items-center gap-1.5">
                                 <i data-lucide="database" class="w-4 h-4 text-cyan-400"></i> Isolated DB Name:
                             </span>
                             <span class="text-cyan-300 font-bold"><?php echo htmlspecialchars($app['db_name'] ?? 'db_' . str_replace('-', '_', $app['slug'])); ?></span>
                         </div>
-                        <div class="flex items-center justify-between text-[11px] font-mono text-slate-500 dark:text-slate-400 border-t border-slate-200 dark:border-slate-800/60 pt-2">
+                        <div class="flex items-center justify-between text-[11px] font-mono text-slate-400 border-t border-[#1E293B] pt-2">
                             <span>Provisioning Status: <strong class="text-emerald-400"><?php echo strtoupper($app['db_status'] ?? 'PROVISIONED'); ?></strong></span>
                             <span>Host: <?php echo htmlspecialchars($app['db_host'] ?? '127.0.0.1'); ?>:<?php echo htmlspecialchars($app['db_port'] ?? '3306'); ?></span>
                         </div>
                     </div>
                 </div>
 
-                <div class="pt-4 mt-4 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                <div class="pt-4 mt-4 border-t border-[#1E293B] flex items-center justify-between">
                     <div class="flex items-center gap-2">
                         <?php 
                         $this->load->view('components/button', [
@@ -143,8 +143,8 @@
     ?>
 
     <div>
-        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Category</label>
-        <select name="category" class="vf-input w-full  focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500">
+        <label class="block text-xs font-semibold text-slate-300 mb-1">Category</label>
+        <select name="category" class="vf-input w-full focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500">
             <option value="saas_tenant">SaaS Multi-Tenant</option>
             <option value="3d_portfolio">3D Portfolio</option>
             <option value="external_app">External Managed App</option>
@@ -152,11 +152,11 @@
     </div>
 
     <div>
-        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Description</label>
-        <textarea name="description" rows="3" placeholder="Deskripsi aplikasi atau spesifikasi tenant..." class="vf-input w-full  focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"></textarea>
+        <label class="block text-xs font-semibold text-slate-300 mb-1">Description</label>
+        <textarea name="description" rows="3" placeholder="Deskripsi aplikasi atau spesifikasi tenant..." class="vf-input w-full focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"></textarea>
     </div>
 
-    <div class="space-y-4 pt-3 border-t border-slate-200 dark:border-slate-800">
+    <div class="space-y-4 pt-3 border-t border-[#1E293B]">
         <h4 class="text-sm font-bold text-white flex items-center gap-2">
             <i data-lucide="database" class="w-4 h-4 text-cyan-400"></i> Manual Database Configuration
         </h4>
@@ -210,7 +210,7 @@
         </div>
     </div>
 
-    <div class="flex justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800 mt-4">
+    <div class="flex justify-end gap-2 pt-3 border-t border-[#1E293B] mt-4">
         <button type="button" onclick="closeRegisterAppModal()" class="vf-button vf-button--subtle px-5 py-2">Batal</button>
         <button type="submit" id="submitRegisterBtn" class="vf-button vf-button--primary px-5 py-2">
             <span class="vf-button__label flex items-center gap-1.5"><i data-lucide="check" class="w-4 h-4"></i> Register Application</span>
@@ -245,16 +245,16 @@ $this->load->view('components/modal', [
 
     <div class="grid grid-cols-2 gap-4">
         <div>
-            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Category</label>
-            <select name="category" id="edit_app_category" class="vf-input w-full  focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500">
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Category</label>
+            <select name="category" id="edit_app_category" class="vf-input w-full focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500">
                 <option value="saas_tenant">SaaS Multi-Tenant</option>
                 <option value="3d_portfolio">3D Portfolio</option>
                 <option value="external_app">External Managed App</option>
             </select>
         </div>
         <div>
-            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Status</label>
-            <select name="status" id="edit_app_status" class="vf-input w-full  focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500">
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Status</label>
+            <select name="status" id="edit_app_status" class="vf-input w-full focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500">
                 <option value="active">Active</option>
                 <option value="maintenance">Maintenance</option>
                 <option value="suspended">Suspended</option>
@@ -263,11 +263,11 @@ $this->load->view('components/modal', [
     </div>
 
     <div>
-        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Description</label>
-        <textarea name="description" id="edit_app_description" rows="3" class="vf-input w-full  focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"></textarea>
+        <label class="block text-xs font-semibold text-slate-300 mb-1">Description</label>
+        <textarea name="description" id="edit_app_description" rows="3" class="vf-input w-full focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"></textarea>
     </div>
 
-    <div class="space-y-4 pt-3 border-t border-slate-200 dark:border-slate-800">
+    <div class="space-y-4 pt-3 border-t border-[#1E293B]">
         <h4 class="text-sm font-bold text-white flex items-center gap-2">
             <i data-lucide="database" class="w-4 h-4 text-cyan-400"></i> Database Configuration
         </h4>
@@ -321,7 +321,7 @@ $this->load->view('components/modal', [
         </div>
     </div>
 
-    <div class="flex justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800 mt-4">
+    <div class="flex justify-end gap-2 pt-3 border-t border-[#1E293B] mt-4">
         <button type="button" onclick="closeEditAppModal()" class="vf-button vf-button--subtle px-5 py-2">Batal</button>
         <button type="submit" id="submitEditAppBtn" class="vf-button vf-button--primary px-5 py-2">
             <span class="vf-button__label flex items-center gap-1.5"><i data-lucide="save" class="w-4 h-4"></i> Simpan Perubahan</span>

@@ -2,10 +2,9 @@
 </div><!-- closes main content wrapper -->
 </div><!-- closes flex-1 flex row from navbar.php -->
 
-<footer class="border-t border-[#1E293B] bg-white dark:bg-[#0A0E1A]/90 py-4 text-center text-xs text-slate-500">
-    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-        <p>&copy; <?php echo date('Y'); ?> 3D Portfolio IAM Admin Panel — CodeIgniter 3.1.13 Edition</p>
-        <p class="font-mono text-[11px] text-cyan-400/80">Developed for XAMPP Web Server Environment</p>
+<footer class="border-t border-[#1E293B] bg-[#0A0E1A]/90 py-4 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-center gap-2">
+        <p>&copy; <?php echo date('Y'); ?> IAM Admin Panel - Moch. Adam A</p>
     </div>
 </footer>
 
@@ -38,14 +37,28 @@
     ]); 
     ?>
     <div>
-        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Peran (Role)</label>
-        <select id="user-role" class="vf-input w-full  focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500">
+        <label class="block text-xs font-semibold text-slate-300 mb-1">Peran (Role)</label>
+        <select id="user-role" class="vf-select w-full focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500">
             <?php if (isset($roles)): foreach ($roles as $r): ?>
             <option value="<?php echo htmlspecialchars($r['name']); ?>"><?php echo htmlspecialchars($r['displayName']); ?></option>
             <?php endforeach; endif; ?>
         </select>
     </div>
-    <div class="flex justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800 mt-4">
+    <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1">Aplikasi (Target Application)</label>
+        <select id="user-app" class="vf-select w-full focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500">
+            <option value="">Global / IAM Core</option>
+            <?php 
+            $CI =& get_instance();
+            $available_apps = isset($applications) ? $applications : ((isset($CI->Application_model)) ? $CI->Application_model->get_all_applications() : array());
+            if (!empty($available_apps)):
+                foreach ($available_apps as $app_item): ?>
+                <option value="<?php echo htmlspecialchars($app_item['id']); ?>"><?php echo htmlspecialchars($app_item['name']); ?> (<?php echo htmlspecialchars($app_item['slug']); ?>)</option>
+                <?php endforeach;
+            endif; ?>
+        </select>
+    </div>
+    <div class="flex justify-end gap-2 pt-3 border-t border-[#1E293B] mt-4">
         <button type="button" onclick="closeAddUserModal()" class="vf-button vf-button--subtle">Batal</button>
         <button type="submit" class="vf-button vf-button--primary">Simpan User</button>
     </div>
@@ -82,10 +95,10 @@ $this->load->view('components/modal', [
     ]); 
     ?>
     <div>
-        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Deskripsi Peran</label>
-        <textarea id="role-description" rows="2" placeholder="Tanggung jawab hak akses peran ini..." class="vf-input w-full  focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"></textarea>
+        <label class="block text-xs font-semibold text-slate-300 mb-1">Deskripsi Peran</label>
+        <textarea id="role-description" rows="2" placeholder="Tanggung jawab hak akses peran ini..." class="vf-input w-full focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"></textarea>
     </div>
-    <div class="flex justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800 mt-4">
+    <div class="flex justify-end gap-2 pt-3 border-t border-[#1E293B] mt-4">
         <button type="button" onclick="closeAddRoleModal()" class="vf-button vf-button--subtle">Batal</button>
         <button type="submit" class="vf-button vf-button--primary">Buat Role</button>
     </div>
@@ -114,8 +127,8 @@ $this->load->view('components/modal', [
     ]); 
     ?>
     <div>
-        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">Pemilik (Owner User)</label>
-        <select id="key-owner" class="vf-input w-full  focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500">
+        <label class="block text-xs font-semibold text-slate-300 mb-1">Pemilik (Owner User)</label>
+        <select id="key-owner" class="vf-input w-full focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500">
             <?php if (isset($users)): foreach ($users as $u): ?>
             <option value="<?php echo htmlspecialchars($u['id']); ?>|<?php echo htmlspecialchars($u['fullName']); ?>"><?php echo htmlspecialchars($u['fullName']); ?> (@<?php echo htmlspecialchars($u['username']); ?>)</option>
             <?php endforeach; endif; ?>
@@ -130,7 +143,7 @@ $this->load->view('components/modal', [
         'required' => true
     ]); 
     ?>
-    <div class="flex justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800 mt-4">
+    <div class="flex justify-end gap-2 pt-3 border-t border-[#1E293B] mt-4">
         <button type="button" onclick="closeAddApiKeyModal()" class="vf-button vf-button--subtle">Batal</button>
         <button type="submit" class="vf-button vf-button--primary">Generate Token</button>
     </div>
@@ -148,47 +161,54 @@ $this->load->view('components/modal', [
 ?>
 
 <!-- MODAL 4: COMMAND PALETTE MODAL -->
-<div id="modal-command-palette" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-sm flex items-start justify-center pt-20 p-4">
-    <div class="vf-panel max-w-xl w-full overflow-hidden p-0">
-        <div class="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center gap-3">
+<div id="modal-command-palette" class="fixed inset-0 z-50 hidden bg-[#020617]/80 backdrop-blur-md flex items-start justify-center pt-20 p-4">
+    <div class="rounded-2xl bg-[#131B2E] border border-[#1E293B] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)] max-w-xl w-full overflow-hidden p-0 animate-in">
+        <div class="p-4 border-b border-[#1E293B] flex items-center gap-3">
             <i data-lucide="search" class="w-5 h-5 text-cyan-400"></i>
-            <input type="text" id="cmd-input" onkeyup="filterCommandPalette()" placeholder="Ketik perintah atau modul (misal: 'users', 'roles', 'api', 'sync')..." class="w-full bg-transparent text-slate-800 dark:text-slate-100 text-sm focus:outline-none">
-            <kbd class="px-2 py-0.5 rounded bg-slate-800 text-slate-500 dark:text-slate-400 text-[10px] font-mono">ESC</kbd>
+            <input type="text" id="cmd-input" onkeyup="filterCommandPalette()" placeholder="Ketik perintah atau modul (misal: 'users', 'roles', 'api', 'projects')..." class="w-full bg-transparent text-slate-100 text-sm focus:outline-none">
+            <kbd class="px-2 py-0.5 rounded bg-[#0A0E1A] border border-[#1E293B] text-slate-400 text-[10px] font-mono">ESC</kbd>
         </div>
         <div class="max-h-80 overflow-y-auto p-2 space-y-1 text-xs" id="cmd-results">
-            <a href="<?php echo base_url('dashboard'); ?>" class="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-200 transition">
+            <a href="<?php echo base_url('dashboard'); ?>" class="flex items-center gap-3 p-3 rounded-xl hover:bg-[#1E293B] text-slate-300 hover:text-white transition-colors">
                 <i data-lucide="layout-dashboard" class="w-4 h-4 text-cyan-400"></i>
                 <div>
-                    <p class="font-bold">Buka Dashboard Telemetry</p>
-                    <p class="text-[11px] text-slate-500 dark:text-slate-400">Lihat statistik pengguna dan sesi CI3 aktif</p>
+                    <p class="font-bold text-slate-200">Buka Dashboard Telemetry</p>
+                    <p class="text-[11px] text-slate-400">Lihat statistik pengguna dan status multi-tenant</p>
                 </div>
             </a>
-            <a href="<?php echo base_url('users'); ?>" class="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-200 transition">
-                <i data-lucide="users" class="w-4 h-4 text-cyan-400"></i>
+            <a href="<?php echo base_url('projects'); ?>" class="flex items-center gap-3 p-3 rounded-xl hover:bg-[#1E293B] text-slate-300 hover:text-white transition-colors">
+                <i data-lucide="box" class="w-4 h-4 text-emerald-400"></i>
                 <div>
-                    <p class="font-bold">Kelola Akun Pengguna</p>
-                    <p class="text-[11px] text-slate-500 dark:text-slate-400">Tambah user, toggle MFA, suspend akun</p>
+                    <p class="font-bold text-slate-200">Proyek Portofolio 3D</p>
+                    <p class="text-[11px] text-slate-400">Kelola item portofolio 3D dan konfigurasi visual</p>
                 </div>
             </a>
-            <a href="<?php echo base_url('roles'); ?>" class="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-200 transition">
-                <i data-lucide="shield-alert" class="w-4 h-4 text-cyan-400"></i>
+            <a href="<?php echo base_url('applications'); ?>" class="flex items-center gap-3 p-3 rounded-xl hover:bg-[#1E293B] text-slate-300 hover:text-white transition-colors">
+                <i data-lucide="layers" class="w-4 h-4 text-cyan-400"></i>
                 <div>
-                    <p class="font-bold">Matriks Role & RBAC</p>
-                    <p class="text-[11px] text-slate-500 dark:text-slate-400">Atur hak akses granular per kategori</p>
+                    <p class="font-bold text-slate-200">App &amp; Tenant Registry</p>
+                    <p class="text-[11px] text-slate-400">Pendaftaran aplikasi SaaS dan database terisolasi</p>
                 </div>
             </a>
-            <a href="<?php echo base_url('api-keys'); ?>" class="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-200 transition">
-                <i data-lucide="key" class="w-4 h-4 text-cyan-400"></i>
+            <a href="<?php echo base_url('users'); ?>" class="flex items-center gap-3 p-3 rounded-xl hover:bg-[#1E293B] text-slate-300 hover:text-white transition-colors">
+                <i data-lucide="users" class="w-4 h-4 text-blue-400"></i>
                 <div>
-                    <p class="font-bold">Kelola REST API Token</p>
-                    <p class="text-[11px] text-slate-500 dark:text-slate-400">Generate token baru dan rate limit</p>
+                    <p class="font-bold text-slate-200">Kelola Akun Admin</p>
+                    <p class="text-[11px] text-slate-400">Tambah user admin, toggle MFA, kelola status</p>
                 </div>
             </a>
-            <a href="<?php echo base_url('ci3-sync'); ?>" class="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-200 transition">
-                <i data-lucide="database" class="w-4 h-4 text-cyan-400"></i>
+            <a href="<?php echo base_url('api-keys'); ?>" class="flex items-center gap-3 p-3 rounded-xl hover:bg-[#1E293B] text-slate-300 hover:text-white transition-colors">
+                <i data-lucide="key" class="w-4 h-4 text-purple-400"></i>
                 <div>
-                    <p class="font-bold">CI3 Database & Hook Inspector</p>
-                    <p class="text-[11px] text-slate-500 dark:text-slate-400">Inspeksi ci_sessions dan IAM_Hook.php</p>
+                    <p class="font-bold text-slate-200">Kelola REST API Token</p>
+                    <p class="text-[11px] text-slate-400">Generate token baru dan kontrol rate limit</p>
+                </div>
+            </a>
+            <a href="<?php echo base_url('audit-logs'); ?>" class="flex items-center gap-3 p-3 rounded-xl hover:bg-[#1E293B] text-slate-300 hover:text-white transition-colors">
+                <i data-lucide="file-text" class="w-4 h-4 text-amber-400"></i>
+                <div>
+                    <p class="font-bold text-slate-200">Security Audit Logs</p>
+                    <p class="text-[11px] text-slate-400">Inspeksi audit log keamanan dan telemetri</p>
                 </div>
             </a>
         </div>
@@ -249,14 +269,53 @@ $this->load->view('components/modal', [
     }
 
     // Modal Control Functions
-    function openAddUserModal() { document.getElementById('modal-add-user').classList.remove('hidden'); }
-    function closeAddUserModal() { document.getElementById('modal-add-user').classList.add('hidden'); }
+    function openAddUserModal() {
+        const modal = document.getElementById('modal-add-user');
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            if (window.lucide) lucide.createIcons();
+        }
+    }
+    function closeAddUserModal() {
+        const modal = document.getElementById('modal-add-user');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+    }
 
-    function openAddRoleModal() { document.getElementById('modal-add-role').classList.remove('hidden'); }
-    function closeAddRoleModal() { document.getElementById('modal-add-role').classList.add('hidden'); }
+    function openAddRoleModal() {
+        const modal = document.getElementById('modal-add-role');
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            if (window.lucide) lucide.createIcons();
+        }
+    }
+    function closeAddRoleModal() {
+        const modal = document.getElementById('modal-add-role');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+    }
 
-    function openAddApiKeyModal() { document.getElementById('modal-add-apikey').classList.remove('hidden'); }
-    function closeAddApiKeyModal() { document.getElementById('modal-add-apikey').classList.add('hidden'); }
+    function openAddApiKeyModal() {
+        const modal = document.getElementById('modal-add-apikey');
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            if (window.lucide) lucide.createIcons();
+        }
+    }
+    function closeAddApiKeyModal() {
+        const modal = document.getElementById('modal-add-apikey');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+    }
 
     // AJAX Operations
     function triggerDbSync() {
@@ -312,11 +371,12 @@ $this->load->view('components/modal', [
         const fullName = document.getElementById('user-fullname').value;
         const email = document.getElementById('user-email').value;
         const role = document.getElementById('user-role').value;
+        const application_id = document.getElementById('user-app')?.value || '';
 
         fetch(BASE_URL + 'api/add_user', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, fullName, email, role })
+            body: JSON.stringify({ username, fullName, email, role, application_id })
         })
         .then(res => res.json())
         .then(data => {
@@ -440,6 +500,7 @@ $this->load->view('components/modal', [
         const q = (document.getElementById('user-search-input')?.value || '').toLowerCase();
         const role = (document.getElementById('role-filter')?.value || '');
         const status = (document.getElementById('status-filter')?.value || '');
+        const app = (document.getElementById('app-filter')?.value || '').toLowerCase();
 
         document.querySelectorAll('.user-row').forEach(row => {
             const uName = row.dataset.username || '';
@@ -447,12 +508,14 @@ $this->load->view('components/modal', [
             const email = row.dataset.email || '';
             const uRole = row.dataset.role || '';
             const uStatus = row.dataset.status || '';
+            const uApp = (row.dataset.app || '').toLowerCase();
 
             const matchQ = uName.includes(q) || fName.includes(q) || email.includes(q);
             const matchRole = !role || uRole === role;
             const matchStatus = !status || uStatus === status;
+            const matchApp = !app || uApp === app || (app === 'all' && (uApp === 'all' || uApp === 'iam-core'));
 
-            row.style.display = (matchQ && matchRole && matchStatus) ? '' : 'none';
+            row.style.display = (matchQ && matchRole && matchStatus && matchApp) ? '' : 'none';
         });
     }
 
@@ -535,44 +598,168 @@ $this->load->view('components/modal', [
     }
 
     // Projects Portfolio Management JS Functions
+    function updateProjectImagePreview(url) {
+        const previewImg = document.getElementById('project-preview-img');
+        const placeholder = document.getElementById('project-preview-placeholder');
+        if (!previewImg || !placeholder) return;
+
+        if (url && typeof url === 'string' && url.trim().length > 0) {
+            previewImg.src = url.trim();
+            previewImg.classList.remove('hidden');
+            placeholder.classList.add('hidden');
+            previewImg.onerror = function() {
+                previewImg.classList.add('hidden');
+                placeholder.classList.remove('hidden');
+            };
+        } else {
+            previewImg.src = '';
+            previewImg.classList.add('hidden');
+            placeholder.classList.remove('hidden');
+        }
+    }
+
+    function uploadProjectImage(input) {
+        if (!input.files || !input.files[0]) return;
+        const file = input.files[0];
+
+        // Preview locally instantly
+        try {
+            const localUrl = URL.createObjectURL(file);
+            updateProjectImagePreview(localUrl);
+        } catch(e) {}
+
+        const btn = document.getElementById('btn-upload-image');
+        const statusEl = document.getElementById('project-upload-status');
+        const origBtnHtml = btn ? btn.innerHTML : '';
+
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<i data-lucide="loader" class="w-3.5 h-3.5 animate-spin text-cyan-400"></i> <span>Uploading...</span>';
+            if (window.lucide) lucide.createIcons();
+        }
+        if (statusEl) {
+            statusEl.classList.remove('hidden');
+            statusEl.className = 'text-[10px] text-cyan-400 font-mono';
+            statusEl.innerText = 'Mengunggah...';
+        }
+
+        const formData = new FormData();
+        formData.append('image', file);
+
+        fetch(BASE_URL + 'api/projects/upload-image', {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success && data.url) {
+                const srcInput = document.getElementById('project-src');
+                if (srcInput) srcInput.value = data.url;
+                updateProjectImagePreview(data.url);
+                if (statusEl) {
+                    statusEl.innerText = '✓ Berhasil';
+                    statusEl.className = 'text-[10px] text-emerald-400 font-mono';
+                    setTimeout(() => { statusEl.classList.add('hidden'); }, 3000);
+                }
+            } else {
+                alert('Gagal mengunggah gambar: ' + (data.error || 'Terjadi kesalahan sistem'));
+                if (statusEl) statusEl.classList.add('hidden');
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert('Terjadi kesalahan saat mengunggah gambar.');
+            if (statusEl) statusEl.classList.add('hidden');
+        })
+        .finally(() => {
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = origBtnHtml;
+                if (window.lucide) lucide.createIcons();
+            }
+            input.value = '';
+        });
+    }
+
     function openAddProjectModal() {
         const modal = document.getElementById('modal-project');
         if (!modal) return;
-        document.getElementById('project-modal-title').querySelector('span').innerText = 'Tambah Proyek Portofolio';
-        document.getElementById('project-form').reset();
-        document.getElementById('project-id').value = '';
+        const titleEl = document.getElementById('project-modal-title') || modal.querySelector('.vf-panel__title');
+        if (titleEl) {
+            const span = titleEl.querySelector('span') || titleEl;
+            span.innerText = 'Tambah Proyek Portofolio';
+        }
+        const form = document.getElementById('project-form');
+        if (form) form.reset();
+        const idInput = document.getElementById('project-id');
+        if (idInput) idInput.value = '';
+
+        updateProjectImagePreview('');
+        const statusEl = document.getElementById('project-upload-status');
+        if (statusEl) statusEl.classList.add('hidden');
+
         modal.classList.remove('hidden');
-        lucide.createIcons();
+        modal.classList.add('flex');
+        if (window.lucide) lucide.createIcons();
     }
 
     function openEditProjectModal(project) {
         const modal = document.getElementById('modal-project');
         if (!modal) return;
-        document.getElementById('project-modal-title').querySelector('span').innerText = 'Edit Proyek Portofolio';
-        document.getElementById('project-form').reset();
-        
-        document.getElementById('project-id').value = project.id;
-        document.getElementById('project-name').value = project.name;
-        document.getElementById('project-src').value = project.src;
-        document.getElementById('project-bg').value = project.bg;
-        document.getElementById('project-lightBg').value = project.lightBg;
-        document.getElementById('project-nebula1').value = project.nebula1;
-        document.getElementById('project-nebula2').value = project.nebula2;
-        document.getElementById('project-aura').value = project.aura;
-        document.getElementById('project-description').value = project.description;
-        document.getElementById('project-description-id').value = project.description_id;
 
-        document.getElementById('project-features').value = (project.features || []).join('\n');
-        document.getElementById('project-features-id').value = (project.features_id || []).join('\n');
-        document.getElementById('project-techStack').value = (project.techStack || []).join('\n');
+        if (typeof project === 'number' || typeof project === 'string') {
+            const found = (window.portfolioProjects || []).find(p => p.id == project);
+            if (found) {
+                project = found;
+            } else {
+                console.error('Project not found for id:', project);
+                return;
+            }
+        }
+
+        const titleEl = document.getElementById('project-modal-title') || modal.querySelector('.vf-panel__title');
+        if (titleEl) {
+            const span = titleEl.querySelector('span') || titleEl;
+            span.innerText = 'Edit Proyek Portofolio';
+        }
+        const form = document.getElementById('project-form');
+        if (form) form.reset();
+        
+        const setVal = (id, val) => {
+            const el = document.getElementById(id);
+            if (el) el.value = val !== undefined && val !== null ? val : '';
+        };
+
+        setVal('project-id', project.id);
+        setVal('project-name', project.name);
+        setVal('project-src', project.src);
+        setVal('project-bg', project.bg || '#040614');
+        setVal('project-lightBg', project.lightBg || '#0f172a');
+        setVal('project-nebula1', project.nebula1 || '#6366f1');
+        setVal('project-nebula2', project.nebula2 || '#06b6d4');
+        setVal('project-aura', project.aura || '#818cf8');
+        setVal('project-description', project.description);
+        setVal('project-description-id', project.description_id);
+
+        setVal('project-features', (Array.isArray(project.features) ? project.features : []).join('\n'));
+        setVal('project-features-id', (Array.isArray(project.features_id) ? project.features_id : []).join('\n'));
+        setVal('project-techStack', (Array.isArray(project.techStack) ? project.techStack : []).join('\n'));
+
+        updateProjectImagePreview(project.src);
+        const statusEl = document.getElementById('project-upload-status');
+        if (statusEl) statusEl.classList.add('hidden');
 
         modal.classList.remove('hidden');
-        lucide.createIcons();
+        modal.classList.add('flex');
+        if (window.lucide) lucide.createIcons();
     }
 
     function closeProjectModal() {
         const modal = document.getElementById('modal-project');
-        if (modal) modal.classList.add('hidden');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
     }
 
     function submitProject(e) {
@@ -611,18 +798,40 @@ $this->load->view('components/modal', [
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
+        .then(async res => {
+            const data = await res.json().catch(() => null);
+            if (res.ok && data && data.success) {
                 closeProjectModal();
-                location.reload();
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        title: 'Berhasil!',
+                        text: id ? 'Proyek berhasil diperbarui.' : 'Proyek baru berhasil ditambahkan.',
+                        icon: 'success',
+                        background: '#0D1322',
+                        color: '#F1F5F9',
+                        confirmButtonColor: '#10b981'
+                    }).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    location.reload();
+                }
             } else {
-                alert('Gagal menyimpan proyek: ' + (data.error || 'Unknown error'));
+                const errMsg = (data && data.error) ? data.error : 'Terjadi kesalahan saat menyimpan proyek.';
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({ title: 'Gagal', text: errMsg, icon: 'error', background: '#0D1322', color: '#F1F5F9' });
+                } else {
+                    alert('Gagal menyimpan proyek: ' + errMsg);
+                }
             }
         })
         .catch(err => {
             console.error(err);
-            alert('Terjadi kesalahan jaringan.');
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({ title: 'Error', text: 'Terjadi kesalahan jaringan atau server.', icon: 'error', background: '#0D1322', color: '#F1F5F9' });
+            } else {
+                alert('Terjadi kesalahan jaringan.');
+            }
         });
     }
 

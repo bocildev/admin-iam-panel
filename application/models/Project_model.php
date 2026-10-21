@@ -62,25 +62,36 @@ class Project_model extends CI_Model {
         if ($this->db->is_connected()) {
             $sql = "INSERT INTO portofolio (name, src, bg, lightBg, nebula1, nebula2, aura, description, description_id, features, features_id, techStack) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             
-            $features = is_array($data['features']) ? json_encode($data['features']) : $data['features'];
-            $features_id = is_array($data['features_id']) ? json_encode($data['features_id']) : $data['features_id'];
-            $techStack = is_array($data['techStack']) ? json_encode($data['techStack']) : $data['techStack'];
+            $features = isset($data['features']) ? (is_array($data['features']) ? json_encode($data['features']) : $data['features']) : '[]';
+            $features_id = isset($data['features_id']) ? (is_array($data['features_id']) ? json_encode($data['features_id']) : $data['features_id']) : '[]';
+            $techStack = isset($data['techStack']) ? (is_array($data['techStack']) ? json_encode($data['techStack']) : $data['techStack']) : '[]';
 
-            $this->db->query($sql, array(
-                $data['name'],
-                $data['src'],
-                $data['bg'],
-                $data['lightBg'],
-                $data['nebula1'],
-                $data['nebula2'],
-                $data['aura'],
-                $data['description'],
-                $data['description_id'],
+            $res = $this->db->query($sql, array(
+                isset($data['name']) ? $data['name'] : '',
+                isset($data['src']) ? $data['src'] : '',
+                isset($data['bg']) ? $data['bg'] : '#040614',
+                isset($data['lightBg']) ? $data['lightBg'] : '#0f172a',
+                isset($data['nebula1']) ? $data['nebula1'] : '#6366f1',
+                isset($data['nebula2']) ? $data['nebula2'] : '#06b6d4',
+                isset($data['aura']) ? $data['aura'] : '#818cf8',
+                isset($data['description']) ? $data['description'] : '',
+                isset($data['description_id']) ? $data['description_id'] : '',
                 $features,
                 $features_id,
                 $techStack
             ));
-            return $this->db->insert_id();
+
+            if (!$res) {
+                return false;
+            }
+
+            if (method_exists($this->db, 'insert_id')) {
+                return $this->db->insert_id();
+            }
+
+            $last = $this->db->query("SELECT LAST_INSERT_ID() as id");
+            $row = $last ? $last->row_array() : null;
+            return $row ? (int)$row['id'] : true;
         }
         return false;
     }
@@ -89,26 +100,25 @@ class Project_model extends CI_Model {
         if ($this->db->is_connected()) {
             $sql = "UPDATE portofolio SET name = ?, src = ?, bg = ?, lightBg = ?, nebula1 = ?, nebula2 = ?, aura = ?, description = ?, description_id = ?, features = ?, features_id = ?, techStack = ? WHERE id = ?";
             
-            $features = is_array($data['features']) ? json_encode($data['features']) : $data['features'];
-            $features_id = is_array($data['features_id']) ? json_encode($data['features_id']) : $data['features_id'];
-            $techStack = is_array($data['techStack']) ? json_encode($data['techStack']) : $data['techStack'];
+            $features = isset($data['features']) ? (is_array($data['features']) ? json_encode($data['features']) : $data['features']) : '[]';
+            $features_id = isset($data['features_id']) ? (is_array($data['features_id']) ? json_encode($data['features_id']) : $data['features_id']) : '[]';
+            $techStack = isset($data['techStack']) ? (is_array($data['techStack']) ? json_encode($data['techStack']) : $data['techStack']) : '[]';
 
-            $this->db->query($sql, array(
-                $data['name'],
-                $data['src'],
-                $data['bg'],
-                $data['lightBg'],
-                $data['nebula1'],
-                $data['nebula2'],
-                $data['aura'],
-                $data['description'],
-                $data['description_id'],
+            return $this->db->query($sql, array(
+                isset($data['name']) ? $data['name'] : '',
+                isset($data['src']) ? $data['src'] : '',
+                isset($data['bg']) ? $data['bg'] : '#040614',
+                isset($data['lightBg']) ? $data['lightBg'] : '#0f172a',
+                isset($data['nebula1']) ? $data['nebula1'] : '#6366f1',
+                isset($data['nebula2']) ? $data['nebula2'] : '#06b6d4',
+                isset($data['aura']) ? $data['aura'] : '#818cf8',
+                isset($data['description']) ? $data['description'] : '',
+                isset($data['description_id']) ? $data['description_id'] : '',
                 $features,
                 $features_id,
                 $techStack,
                 $id
             ));
-            return true;
         }
         return false;
     }

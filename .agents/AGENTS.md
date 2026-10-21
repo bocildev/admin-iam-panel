@@ -8,3 +8,9 @@ The application strictly adheres to the design constraints specified in that doc
 
 This project uses a custom, stripped-down version of CodeIgniter 3. Many standard CI3 functions and helpers (e.g., `redirect()`, `config_item()`, `is_ajax_request()`) are either missing or not automatically loaded.
 When modifying controllers or core classes, ALWAYS prefer native PHP functions (e.g., `header('Location: ...')`, `$_SERVER` checks) over relying on CI3 globals unless you have explicitly verified their existence.
+
+# Paired Portfolio Integration
+This IAM Admin Panel serves as the backend headless CMS & control center for the user's interactive portfolio located at:
+`e:\Data Pribadi\web-porto\portofolio-motion` (Nuxt 3 + Vue 3 + Tailwind + GSAP).
+The dedicated controller is `application/controllers/Motion_portfolio.php` and its view is `application/views/motion_portfolio/index.php`.
+Full memory specification is documented in `e:\Data Pribadi\web-porto\portofolio-motion\MEMORY.md`.

@@ -5,11 +5,24 @@ class User_model extends CI_Model {
 
     public function get_all_users() {
         if ($this->db->is_connected()) {
-            $res = $this->db->query("SELECT * FROM admins ORDER BY created_at DESC");
+            $sql = "SELECT 
+                        adm.*, 
+                        app.id as app_id, 
+                        app.name as app_name, 
+                        app.slug as app_slug,
+                        aua.app_role
+                    FROM admins adm
+                    LEFT JOIN app_user_access aua ON adm.id = aua.admin_id
+                    LEFT JOIN applications app ON aua.application_id = app.id
+                    ORDER BY adm.created_at DESC";
+            $res = $this->db->query($sql);
             $rows = $res ? $res->result_array() : array();
             if (!empty($rows)) {
                 $users = array();
                 foreach ($rows as $r) {
+                    $app_name = !empty($r['app_name']) ? $r['app_name'] : (($r['role'] === 'super_admin') ? 'All Applications' : 'IAM Core');
+                    $app_slug = !empty($r['app_slug']) ? $r['app_slug'] : (($r['role'] === 'super_admin') ? 'all' : 'iam-core');
+                    
                     $users[] = array(
                         'id' => $r['id'],
                         'username' => $r['username'],
@@ -22,7 +35,10 @@ class User_model extends CI_Model {
                         'isMfaEnabled' => (bool)$r['is_mfa_enabled'],
                         'lastLogin' => $r['last_login'],
                         'ipAddress' => $r['ip_address'],
-                        'createdAt' => $r['created_at']
+                        'createdAt' => $r['created_at'],
+                        'appId' => $r['app_id'],
+                        'appName' => $app_name,
+                        'appSlug' => $app_slug
                     );
                 }
                 return $users;
@@ -64,6 +80,16 @@ class User_model extends CI_Model {
                 $new_user['ipAddress'],
                 $new_user['createdAt']
             ));
+
+            if (!empty($data['application_id'])) {
+                $aua_id = 'AUA-' . rand(1100, 9999);
+                $this->db->query("INSERT INTO app_user_access (id, admin_id, application_id, app_role) VALUES (?, ?, ?, ?)", array(
+                    $aua_id,
+                    $new_user['id'],
+                    $data['application_id'],
+                    'app_admin'
+                ));
+            }
         }
 
         return $new_user;

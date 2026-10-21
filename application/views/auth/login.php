@@ -68,7 +68,7 @@
             </div>
             <div class="text-center">
                 <h1 class="font-extrabold text-2xl tracking-wider text-white font-mono">PORT<span class="text-emerald-400">ADMIN</span></h1>
-                <p class="text-slate-500 dark:text-slate-400 text-xs mt-1">IAM &amp; SaaS Management Platform</p>
+                <p class="text-slate-400 text-xs mt-1">IAM &amp; SaaS Management Platform</p>
             </div>
         </div>
 
@@ -114,7 +114,7 @@
         </div>
         
         <div class="text-center mt-6 text-xs text-slate-500">
-            &copy; 2026 3D Portfolio IAM Admin Panel
+            &copy; 2026 Moch. Adam A
         </div>
     </div>
 

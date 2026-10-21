@@ -1,32 +1,32 @@
-<div class="px-6 py-8 w-full">
+<div class="px-6 py-6 w-full">
     <div class="flex items-center justify-between mb-6">
         <div>
-            <h1 class="text-2xl font-bold text-white flex items-center gap-2">
+            <h1 class="text-xl lg:text-2xl font-extrabold text-white flex items-center gap-2.5">
                 <i data-lucide="database" class="w-6 h-6 text-emerald-400"></i>
                 Database Manager
             </h1>
-            <p class="text-sm text-slate-400 mt-1">App: <?php echo htmlspecialchars($db_config['db_name']); ?></p>
+            <p class="text-xs text-slate-400 mt-1">App: <span class="text-cyan-300 font-mono"><?php echo htmlspecialchars($db_config['db_name']); ?></span></p>
         </div>
-        <div class="flex items-center gap-4">
-            <div class="bg-slate-900 border border-slate-800 p-1 rounded-lg flex gap-1">
-                <button onclick="switchMode('table')" id="btnTabTable" class="px-3 py-1.5 bg-slate-800 text-white rounded text-xs font-medium shadow transition-colors flex items-center gap-2">
-                    <i data-lucide="table" class="w-3 h-3"></i> Table View
+        <div class="flex items-center gap-3">
+            <div class="bg-[#0A0E1A] border border-[#1E293B] p-1 rounded-xl flex gap-1">
+                <button onclick="switchMode('table')" id="btnTabTable" class="px-3 py-1.5 bg-[#131B2E] border border-[#1E293B] text-white rounded-lg text-xs font-medium shadow transition-colors flex items-center gap-2">
+                    <i data-lucide="table" class="w-3.5 h-3.5 text-cyan-400"></i> Table View
                 </button>
-                <button onclick="switchMode('explorer')" id="btnTabExplorer" class="px-3 py-1.5 text-slate-400 hover:text-white hover:bg-slate-800/50 rounded text-xs font-medium transition-colors flex items-center gap-2">
-                    <i data-lucide="layout-grid" class="w-3 h-3"></i> Relational Explorer
+                <button onclick="switchMode('explorer')" id="btnTabExplorer" class="px-3 py-1.5 text-slate-400 hover:text-white hover:bg-slate-800/50 rounded-lg text-xs font-medium transition-colors flex items-center gap-2">
+                    <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i> Relational Explorer
                 </button>
             </div>
-            <a href="<?php echo base_url('applications'); ?>" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2">
-                <i data-lucide="arrow-left" class="w-4 h-4"></i> Back to Registry
+            <a href="<?php echo base_url('applications'); ?>" class="px-3.5 py-1.5 bg-[#131B2E] hover:bg-slate-800 border border-[#1E293B] text-slate-200 text-xs font-medium rounded-xl transition-colors flex items-center gap-2">
+                <i data-lucide="arrow-left" class="w-4 h-4"></i> Kembali
             </a>
         </div>
     </div>
 
-    <div id="tableModeContainer" class="flex flex-col md:flex-row gap-6 h-[calc(100vh-180px)]">
+    <div id="tableModeContainer" class="flex flex-col md:flex-row gap-5 h-[calc(100vh-190px)]">
         <!-- Sidebar: Tables -->
-        <div class="w-full md:w-1/4 bg-slate-900 border border-slate-800 rounded-xl overflow-hidden flex flex-col">
-            <div class="p-4 border-b border-slate-800 bg-slate-900/50">
-                <h2 class="text-sm font-bold text-white">Tables</h2>
+        <div class="w-full md:w-1/4 bg-[#131B2E] border border-[#1E293B] rounded-2xl overflow-hidden flex flex-col shadow-xl">
+            <div class="p-4 border-b border-[#1E293B] bg-[#0A0E1A]/50">
+                <h2 class="text-xs font-bold text-slate-200 uppercase tracking-wider font-mono">Daftar Tabel</h2>
             </div>
             <div id="tableList" class="flex-1 overflow-y-auto p-2 space-y-1">
                 <div class="text-xs text-slate-500 p-2 text-center">Loading tables...</div>
@@ -34,21 +34,21 @@
         </div>
 
         <!-- Main Content -->
-        <div class="w-full md:w-3/4 bg-slate-900 border border-slate-800 rounded-xl overflow-hidden flex flex-col">
-            <div class="p-4 border-b border-slate-800 bg-slate-900/50 flex justify-between items-center">
-                <h2 id="currentTableName" class="text-sm font-bold text-white">Select a table</h2>
+        <div class="w-full md:w-3/4 bg-[#131B2E] border border-[#1E293B] rounded-2xl overflow-hidden flex flex-col shadow-xl">
+            <div class="p-4 border-b border-[#1E293B] bg-[#0A0E1A]/50 flex justify-between items-center">
+                <h2 id="currentTableName" class="text-sm font-bold text-white font-mono">Select a table</h2>
                 <div class="flex gap-2">
-                    <button id="btnAddData" onclick="openFormModal()" class="hidden px-3 py-1.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20 text-xs font-medium rounded transition-colors flex items-center gap-1">
-                        <i data-lucide="plus" class="w-3 h-3"></i> Add Data
+                    <button id="btnAddData" onclick="openFormModal()" class="hidden px-3 py-1.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20 text-xs font-medium rounded-lg transition-colors flex items-center gap-1.5">
+                        <i data-lucide="plus" class="w-3.5 h-3.5"></i> Add Data
                     </button>
-                    <button id="btnRefresh" onclick="refreshData()" class="hidden px-3 py-1.5 bg-slate-800 text-slate-300 hover:bg-slate-700 text-xs font-medium rounded transition-colors flex items-center gap-1">
-                        <i data-lucide="refresh-cw" class="w-3 h-3"></i> Refresh
+                    <button id="btnRefresh" onclick="refreshData()" class="hidden px-3 py-1.5 bg-[#0A0E1A] text-slate-300 border border-[#1E293B] hover:bg-slate-800 text-xs font-medium rounded-lg transition-colors flex items-center gap-1.5">
+                        <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Refresh
                     </button>
                 </div>
             </div>
-            <div class="flex-1 overflow-auto relative bg-slate-950">
-                <table class="w-full text-left text-xs text-slate-500 dark:text-slate-400" id="dataTable">
-                    <thead class="text-[10px] text-slate-400 uppercase bg-slate-900/80 sticky top-0 backdrop-blur-sm shadow-sm z-10 border-b border-slate-800">
+            <div class="flex-1 overflow-auto relative bg-[#0A0E1A]">
+                <table class="w-full text-left text-xs text-slate-300" id="dataTable">
+                    <thead class="text-[10px] text-slate-400 uppercase bg-[#0A0E1A]/95 sticky top-0 backdrop-blur-sm shadow-sm z-10 border-b border-[#1E293B]">
                         <tr id="dataHead"></tr>
                     </thead>
                     <tbody id="dataBody">
@@ -56,10 +56,10 @@
                     </tbody>
                 </table>
                 <!-- loader overlay -->
-                <div id="dataLoader" class="absolute inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center z-20">
+                <div id="dataLoader" class="absolute inset-0 bg-[#0A0E1A]/70 backdrop-blur-sm hidden flex items-center justify-center z-20">
                     <div class="flex flex-col items-center gap-2 text-cyan-400">
                         <i data-lucide="loader" class="w-6 h-6 animate-spin"></i>
-                        <span class="text-xs font-medium">Memuat data...</span>
+                        <span class="text-xs font-medium font-mono">Memuat data...</span>
                     </div>
                 </div>
             </div>
@@ -67,7 +67,7 @@
     </div>
 
     <!-- Relational Explorer Mode -->
-    <div id="explorerModeContainer" class="hidden h-[calc(100vh-180px)] w-full overflow-x-auto overflow-y-hidden bg-slate-900 border border-slate-800 rounded-xl p-4">
+    <div id="explorerModeContainer" class="hidden h-[calc(100vh-190px)] w-full overflow-x-auto overflow-y-hidden bg-[#131B2E] border border-[#1E293B] rounded-2xl p-4 shadow-xl">
         <div id="explorerColumns" class="flex gap-4 h-full min-w-max">
             <!-- Columns will be injected here via JS -->
             <div class="flex items-center justify-center w-64 h-full text-slate-500 text-sm">Loading explorer...</div>
@@ -162,7 +162,7 @@ function selectTable(tableName) {
 
             loadData();
         } else {
-            Swal.fire({title: 'Error', text: 'Failed to load schema', icon: 'error', background: '#0D1322', color: '#F1F5F9'});
+            Swal.fire({title: 'Error', text: 'Failed to load schema', icon: 'error', background: '#131B2E', color: '#F1F5F9'});
         }
     });
 }
@@ -258,12 +258,12 @@ function openFormModal() {
             relationHint = `<span class="text-[10px] text-emerald-400 float-right">-> ${currentRelations[col.Field]}</span>`;
         }
 
-        html += `<div class="flex flex-col gap-1">`;
-        html += `<label class="text-xs font-bold text-slate-400">${col.Field} ${relationHint}</label>`;
+        html += `<div class="flex flex-col gap-1.5">`;
+        html += `<label class="text-xs font-bold text-slate-300 font-mono">${col.Field} ${relationHint}</label>`;
         if (type === 'textarea') {
-            html += `<textarea name="${col.Field}" ${required} ${readonly} class="px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-white focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none h-20 disabled:opacity-50"></textarea>`;
+            html += `<textarea name="${col.Field}" ${required} ${readonly} class="px-3.5 py-2 bg-[#0A0E1A] border border-[#1E293B] rounded-xl text-xs text-slate-100 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none h-20 disabled:opacity-50 transition-colors font-mono"></textarea>`;
         } else {
-            html += `<input type="${type}" name="${col.Field}" ${required} ${readonly} class="px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-white focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none disabled:opacity-50">`;
+            html += `<input type="${type}" name="${col.Field}" ${required} ${readonly} class="px-3.5 py-2 bg-[#0A0E1A] border border-[#1E293B] rounded-xl text-xs text-slate-100 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none disabled:opacity-50 transition-colors font-mono">`;
         }
         html += `</div>`;
     });
@@ -288,17 +288,17 @@ function openEditModal(rowData) {
         if (col.Type.includes('text')) type = 'textarea';
         
         let required = col.Null === 'NO' && !isAutoInc ? 'required' : '';
-        let readonly = isPK ? 'readonly class="bg-slate-800 text-slate-500"' : ''; // Protect PK on edit
+        let readonly = isPK ? 'readonly class="bg-[#0A0E1A]/60 text-slate-500 border border-[#1E293B]"' : ''; // Protect PK on edit
         
         let val = rowData[col.Field];
         if (val === null) val = '';
         
-        html += `<div class="flex flex-col gap-1">`;
-        html += `<label class="text-xs font-bold text-slate-400">${col.Field}</label>`;
+        html += `<div class="flex flex-col gap-1.5">`;
+        html += `<label class="text-xs font-bold text-slate-300 font-mono">${col.Field}</label>`;
         if (type === 'textarea') {
-            html += `<textarea name="${col.Field}" ${required} ${readonly} class="px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-white focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none h-20 disabled:opacity-50">${val}</textarea>`;
+            html += `<textarea name="${col.Field}" ${required} ${readonly} class="px-3.5 py-2 bg-[#0A0E1A] border border-[#1E293B] rounded-xl text-xs text-slate-100 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none h-20 disabled:opacity-50 transition-colors font-mono">${val}</textarea>`;
         } else {
-            html += `<input type="${type}" name="${col.Field}" value="${val}" ${required} ${readonly} class="px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-white focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none disabled:opacity-50">`;
+            html += `<input type="${type}" name="${col.Field}" value="${val}" ${required} ${readonly} class="px-3.5 py-2 bg-[#0A0E1A] border border-[#1E293B] rounded-xl text-xs text-slate-100 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none disabled:opacity-50 transition-colors font-mono">`;
         }
         html += `</div>`;
     });
@@ -341,7 +341,7 @@ function submitForm(e) {
                 title: 'Berhasil!',
                 text: 'Data berhasil disimpan.',
                 icon: 'success',
-                background: '#0D1322',
+                background: '#131B2E',
                 color: '#F1F5F9',
                 timer: 1500,
                 showConfirmButton: false
@@ -349,11 +349,11 @@ function submitForm(e) {
             closeFormModal();
             refreshData();
         } else {
-            Swal.fire({ title: 'Gagal', text: data.error, icon: 'error', background: '#0D1322', color: '#F1F5F9' });
+            Swal.fire({ title: 'Gagal', text: data.error, icon: 'error', background: '#131B2E', color: '#F1F5F9' });
         }
     })
     .catch(err => {
-        Swal.fire({ title: 'Error', text: 'Gagal terhubung ke server.', icon: 'error', background: '#0D1322', color: '#F1F5F9' });
+        Swal.fire({ title: 'Error', text: 'Gagal terhubung ke server.', icon: 'error', background: '#131B2E', color: '#F1F5F9' });
     });
 }
 
@@ -364,7 +364,7 @@ function deleteRecord(pkVal) {
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Ya, Hapus',
-        background: '#0D1322',
+        background: '#131B2E',
         color: '#F1F5F9',
         confirmButtonColor: '#f43f5e'
     }).then(result => {
@@ -381,10 +381,10 @@ function deleteRecord(pkVal) {
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    Swal.fire({title:'Terhapus!', icon:'success', background: '#0D1322', color: '#F1F5F9', timer:1000, showConfirmButton:false});
+                    Swal.fire({title:'Terhapus!', icon:'success', background: '#131B2E', color: '#F1F5F9', timer:1000, showConfirmButton:false});
                     refreshData();
                 } else {
-                    Swal.fire({title:'Gagal', text:data.error, icon:'error', background: '#0D1322', color: '#F1F5F9'});
+                    Swal.fire({title:'Gagal', text:data.error, icon:'error', background: '#131B2E', color: '#F1F5F9'});
                 }
             });
         }

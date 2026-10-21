@@ -17,7 +17,17 @@ class Admin_model extends CI_Model {
 
     public function get_by_email_or_username($identifier) {
         if ($this->db->is_connected()) {
-            $res = $this->db->query("SELECT * FROM admins WHERE email = ? OR username = ?", array($identifier, $identifier));
+            $sql = "SELECT 
+                        adm.*,
+                        app.id as app_id,
+                        app.name as app_name,
+                        app.slug as app_slug,
+                        aua.app_role
+                    FROM admins adm
+                    LEFT JOIN app_user_access aua ON adm.id = aua.admin_id
+                    LEFT JOIN applications app ON aua.application_id = app.id
+                    WHERE adm.email = ? OR adm.username = ?";
+            $res = $this->db->query($sql, array($identifier, $identifier));
             return $res->row_array();
         }
         return null;
@@ -25,7 +35,17 @@ class Admin_model extends CI_Model {
 
     public function get_by_id($id) {
         if ($this->db->is_connected()) {
-            $res = $this->db->query("SELECT * FROM admins WHERE id = ?", array($id));
+            $sql = "SELECT 
+                        adm.*,
+                        app.id as app_id,
+                        app.name as app_name,
+                        app.slug as app_slug,
+                        aua.app_role
+                    FROM admins adm
+                    LEFT JOIN app_user_access aua ON adm.id = aua.admin_id
+                    LEFT JOIN applications app ON aua.application_id = app.id
+                    WHERE adm.id = ?";
+            $res = $this->db->query($sql, array($id));
             return $res ? $res->row_array() : null;
         }
         return null;

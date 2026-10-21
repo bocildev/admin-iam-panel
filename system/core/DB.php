@@ -60,6 +60,11 @@ class CI_DB {
 			return false;
 		}
 	}
+
+	public function insert_id()
+	{
+		return ($this->db_connected && $this->pdo) ? (int)$this->pdo->lastInsertId() : 0;
+	}
 }
 
 class CI_DB_Result {

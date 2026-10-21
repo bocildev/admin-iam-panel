@@ -221,6 +221,17 @@ class Auth extends CI_Controller {
 
         $this->Admin_model->update_admin($id, $update_data);
 
+        if (isset($input['application_id']) && $this->db->is_connected()) {
+            $app_id = trim($input['application_id']);
+            $this->db->query("DELETE FROM app_user_access WHERE admin_id = ?", array($id));
+            if (!empty($app_id)) {
+                $aua_id = 'AUA-' . rand(1100, 9999);
+                $this->db->query("INSERT INTO app_user_access (id, admin_id, application_id, app_role) VALUES (?, ?, ?, ?)", array(
+                    $aua_id, $id, $app_id, 'app_admin'
+                ));
+            }
+        }
+
         $this->Audit_model->add_log(
             'ADMIN_UPDATED',
             "Memperbarui data akun admin: @{$update_data['username']} ({$id})",

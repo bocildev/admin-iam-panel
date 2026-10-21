@@ -18,16 +18,19 @@
  * Since the user wants reusable components, let's pass $body.
  */
 ?>
-<div id="<?php echo $id; ?>" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md hidden items-center justify-center p-4">
-    <div class="vf-panel w-full max-w-lg relative animate-in" style="background: var(--vf-surface-overlay); box-shadow: var(--vf-shadow-md);">
-        <div class="vf-panel__header border-b border-slate-200 dark:border-slate-800 pb-3 mb-4">
-            <h3 class="vf-panel__title flex items-center gap-2">
+<?php
+$modal_class = isset($class) ? $class : 'max-w-lg';
+?>
+<div id="<?php echo $id; ?>" class="vf-modal-backdrop fixed inset-0 z-50 bg-[#020617]/80 backdrop-blur-md hidden items-center justify-center p-4">
+    <div class="vf-panel w-full <?php echo $modal_class; ?> relative animate-in rounded-2xl bg-[#131B2E] border border-[#1E293B] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.75)]">
+        <div class="vf-panel__header border-b border-[#1E293B] pb-3 mb-4 flex items-center justify-between">
+            <h3 class="vf-panel__title flex items-center gap-2" <?php echo isset($title_id) ? 'id="'.$title_id.'"' : ''; ?>>
                 <?php if (isset($icon)): ?>
                     <i data-lucide="<?php echo $icon; ?>" class="w-5 h-5 text-cyan-400"></i> 
                 <?php endif; ?>
-                <?php echo $title; ?>
+                <span><?php echo $title; ?></span>
             </h3>
-            <button onclick="document.getElementById('<?php echo $id; ?>').classList.add('hidden'); document.getElementById('<?php echo $id; ?>').classList.remove('flex');" class="text-slate-500 dark:text-slate-400 hover:text-white">
+            <button type="button" onclick="<?php echo isset($onClose) ? $onClose : "document.getElementById('{$id}').classList.add('hidden'); document.getElementById('{$id}').classList.remove('flex');"; ?>" class="text-slate-400 hover:text-white transition-colors">
                 <i data-lucide="x" class="w-5 h-5"></i>
             </button>
         </div>
@@ -43,7 +46,7 @@
             </div>
 
             <?php if (!isset($hide_actions) || !$hide_actions): ?>
-            <div class="vf-panel__actions border-t border-slate-200 dark:border-slate-800 pt-4 mt-4 w-full justify-end flex gap-2">
+            <div class="vf-panel__actions border-t border-[#1E293B] pt-4 mt-4 w-full justify-end flex gap-2">
                 <?php 
                 $this->load->view('components/button', [
                     'text' => 'Batal',

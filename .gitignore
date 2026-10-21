@@ -1,7 +1,6 @@
 .htaccess
 /cookie.txt
 /empty_plan_check.txt
-.agents/
 .idea/
 .vscode/
 Thumbs.db
@@ -10,4 +9,8 @@ Desktop.ini
 
 /application/config/config.php
 /application/config/database.php
+/uploads/*
+!/uploads/projects/
+/uploads/projects/*
+!/uploads/projects/.gitkeep
 

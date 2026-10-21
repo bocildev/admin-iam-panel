@@ -345,6 +345,64 @@ class Api extends CI_Controller {
         $this->json_response(array('success' => true));
     }
 
+    // POST /api/projects/upload-image
+    public function upload_image() {
+        if (empty($_FILES['image']) || $_FILES['image']['error'] !== UPLOAD_ERR_OK) {
+            $err_msg = 'Tidak ada file yang diunggah.';
+            if (!empty($_FILES['image']['error'])) {
+                switch ($_FILES['image']['error']) {
+                    case UPLOAD_ERR_INI_SIZE:
+                    case UPLOAD_ERR_FORM_SIZE:
+                        $err_msg = 'Ukuran file melebihi batas maksimum server.';
+                        break;
+                    case UPLOAD_ERR_PARTIAL:
+                        $err_msg = 'File hanya terunggah sebagian.';
+                        break;
+                    case UPLOAD_ERR_NO_FILE:
+                        $err_msg = 'Tidak ada file yang dipilih.';
+                        break;
+                    default:
+                        $err_msg = 'Terjadi kesalahan saat mengunggah file.';
+                }
+            }
+            return $this->json_response(array('error' => $err_msg), 400);
+        }
+
+        $file = $_FILES['image'];
+        $allowed_types = array('jpg', 'jpeg', 'png', 'gif', 'webp', 'svg');
+        $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+
+        if (!in_array($ext, $allowed_types)) {
+            return $this->json_response(array('error' => 'Format file tidak didukung. Harap gunakan format JPG, PNG, WEBP, GIF, atau SVG.'), 400);
+        }
+
+        // Limit size: 10MB
+        if ($file['size'] > 10 * 1024 * 1024) {
+            return $this->json_response(array('error' => 'Ukuran file terlalu besar. Maksimal 10MB.'), 400);
+        }
+
+        $upload_dir = FCPATH . 'uploads' . DIRECTORY_SEPARATOR . 'projects' . DIRECTORY_SEPARATOR;
+        if (!is_dir($upload_dir)) {
+            @mkdir($upload_dir, 0777, true);
+        }
+
+        $filename = 'proj_' . time() . '_' . substr(md5(uniqid(rand(), true)), 0, 6) . '.' . $ext;
+        $target_path = $upload_dir . $filename;
+
+        if (move_uploaded_file($file['tmp_name'], $target_path)) {
+            $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
+            $host = !empty($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost';
+            $file_url = $protocol . $host . base_url('uploads/projects/' . $filename);
+            return $this->json_response(array(
+                'success' => true,
+                'url' => $file_url,
+                'filename' => $filename
+            ));
+        } else {
+            return $this->json_response(array('error' => 'Gagal memindahkan file yang diunggah ke direktori server.'), 500);
+        }
+    }
+
     // GET /api/portfolio/settings
     public function get_settings() {
         $settings = $this->Config_model->get_all_settings();
@@ -437,12 +495,52 @@ class Api extends CI_Controller {
                     'card_description'    => array('enabled' => true),
                     'card_index_badge'    => array('enabled' => true)
                 )
-            ),
-            'background' => array(
-                'nebula_glow'    => array('enabled' => true, 'opacity' => 65),
-                'star_particles' => array('enabled' => true, 'count' => 24),
-                'vignette'       => array('enabled' => true)
             )
         );
     }
+
+    // ==========================================
+    // DEDICATED MOTION PORTFOLIO REST API
+    // ==========================================
+
+    // GET /api/motion/portfolio
+    public function motion_portfolio() {
+        $this->load->model('Motion_portfolio_model');
+        $data = $this->Motion_portfolio_model->get_all_portfolio_data();
+        $this->json_response($data);
+    }
+
+    // GET /api/motion/projects
+    public function motion_projects() {
+        $this->load->model('Motion_portfolio_model');
+        $projects = $this->Motion_portfolio_model->get_all_projects(true);
+        $this->json_response($projects);
+    }
+
+    // POST /api/motion/project/save
+    public function motion_save_project() {
+        $this->load->model('Motion_portfolio_model');
+        $input = $this->input->raw_json();
+        if (empty($input['title'])) {
+            return $this->json_response(array('error' => 'Title is required'), 400);
+        }
+        $id = $this->Motion_portfolio_model->save_project($input);
+        $this->json_response(array('success' => true, 'id' => $id));
+    }
+
+    // POST /api/motion/config/save
+    public function motion_save_config() {
+        $this->load->model('Motion_portfolio_model');
+        $input = $this->input->raw_json();
+        $key = isset($input['key']) ? $input['key'] : null;
+        $val = isset($input['value']) ? $input['value'] : null;
+
+        if (!$key) {
+            return $this->json_response(array('error' => 'Config key required'), 400);
+        }
+
+        $this->Motion_portfolio_model->save_config($key, $val);
+        $this->json_response(array('success' => true));
+    }
 }
+

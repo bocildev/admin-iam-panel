@@ -8,19 +8,22 @@ class Users extends MY_Controller {
         $this->load->model('User_model');
         $this->load->model('Role_model');
         $this->load->model('Audit_model');
+        $this->load->model('Application_model');
     }
 
     public function index() {
         $users = $this->User_model->get_all_users();
         $roles = $this->Role_model->get_all_roles();
+        $applications = $this->Application_model->get_all_applications();
         $stats = get_mock_stats();
 
         $data = array(
-            'active_tab' => 'users',
-            'title'      => 'Identity & User Account Management',
-            'users'      => $users,
-            'roles'      => $roles,
-            'stats'      => $stats
+            'active_tab'   => 'users',
+            'title'        => 'Identity & User Account Management',
+            'users'        => $users,
+            'roles'        => $roles,
+            'applications' => $applications,
+            'stats'        => $stats
         );
 
         $this->load->view('layout/header', $data);
