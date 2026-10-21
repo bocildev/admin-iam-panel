@@ -19,6 +19,10 @@
         </div>
 
         <div class="flex items-center gap-3 shrink-0">
+            <button onclick="openExportSqlModal()" type="button" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#1E293B] hover:bg-[#253147] text-slate-200 hover:text-white font-bold text-xs uppercase tracking-wider transition-colors border border-[#334155] cursor-pointer">
+                <i data-lucide="database" class="w-4 h-4 text-emerald-400"></i>
+                <span>Export Query SQL</span>
+            </button>
             <a href="http://localhost:3000" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-xs uppercase tracking-wider transition-colors shadow-lg shadow-sky-500/20">
                 <i data-lucide="external-link" class="w-4 h-4"></i>
                 <span>Buka Portofolio (Port 3000)</span>
@@ -587,6 +591,46 @@
     </div>
 </div>
 
+<!-- SQL Export Modal -->
+<div id="modal-export-sql" class="fixed inset-0 z-50 hidden bg-[#020617]/85 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="rounded-2xl bg-[#131B2E] border border-[#1E293B] shadow-2xl max-w-4xl w-full max-h-[88vh] flex flex-col overflow-hidden animate-in">
+        <div class="p-5 border-b border-[#1E293B] flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                    <i data-lucide="database" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-sm text-slate-100">Export Query SQL Data (MySQL / MariaDB)</h3>
+                    <p class="text-xs text-slate-400">Salin query SQL berikut untuk diaplikasikan langsung ke server produksi via phpMyAdmin / CLI.</p>
+                </div>
+            </div>
+            <button onclick="closeExportSqlModal()" class="text-slate-400 hover:text-slate-200 p-1 rounded-lg hover:bg-white/5 transition">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+        <div class="p-5 flex-1 overflow-y-auto space-y-3">
+            <div class="flex items-center justify-between text-xs text-slate-400 font-mono">
+                <span>Format: <strong class="text-emerald-400">INSERT ... ON DUPLICATE KEY UPDATE</strong> (Aman ditimpa berkali-kali)</span>
+                <span id="sql-export-meta">Memuat data...</span>
+            </div>
+            <textarea id="sql-export-content" readonly class="w-full h-96 p-4 rounded-xl bg-[#0A0E1A] border border-[#1E293B] text-slate-200 font-mono text-xs leading-relaxed focus:outline-none focus:border-emerald-500 resize-none"></textarea>
+        </div>
+        <div class="p-4 border-t border-[#1E293B] bg-[#0D1322] flex items-center justify-between gap-3">
+            <span class="text-xs text-slate-400 font-mono">Database Target: <strong class="text-sky-400">saas_iam_db</strong></span>
+            <div class="flex items-center gap-2">
+                <a href="<?php echo base_url('motion-portfolio/export-sql?download=1'); ?>" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#1E293B] hover:bg-[#253147] text-slate-200 text-xs font-semibold transition border border-[#334155]">
+                    <i data-lucide="download" class="w-4 h-4"></i>
+                    <span>Unduh .SQL</span>
+                </a>
+                <button onclick="copySqlExport()" type="button" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold transition shadow-lg shadow-emerald-500/20 cursor-pointer">
+                    <i data-lucide="copy" class="w-4 h-4"></i>
+                    <span>Salin Query SQL</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
 window.motionSkillsData = <?php echo json_encode($skills); ?>;
 
@@ -793,6 +837,46 @@ function copyApiToken(text) {
         showToast('API Token berhasil disalin ke clipboard!');
     }).catch(() => {
         alert('API Token: ' + text);
+    });
+}
+
+async function openExportSqlModal() {
+    const modal = document.getElementById('modal-export-sql');
+    const textarea = document.getElementById('sql-export-content');
+    const meta = document.getElementById('sql-export-meta');
+    textarea.value = '-- Sedang mengambil data query SQL terbaru dari database saas_iam_db...';
+    meta.innerText = 'Mengambil...';
+    modal.classList.remove('hidden');
+
+    try {
+        const res = await fetch('<?php echo base_url("motion-portfolio/export-sql"); ?>');
+        const json = await res.json();
+        if (json.success) {
+            textarea.value = json.sql;
+            meta.innerText = 'Timestamp: ' + json.timestamp + ' (' + (new Blob([json.sql]).size / 1024).toFixed(1) + ' KB)';
+        } else {
+            textarea.value = '-- Gagal mengekstrak query SQL: ' + (json.error || 'Terjadi kesalahan');
+            meta.innerText = 'Gagal';
+        }
+    } catch (err) {
+        textarea.value = '-- Error koneksi: ' + err.message;
+        meta.innerText = 'Error';
+    }
+}
+
+function closeExportSqlModal() {
+    document.getElementById('modal-export-sql').classList.add('hidden');
+}
+
+function copySqlExport() {
+    const textarea = document.getElementById('sql-export-content');
+    if (!textarea || !textarea.value) return;
+    navigator.clipboard.writeText(textarea.value).then(() => {
+        showToast('Query SQL berhasil disalin ke clipboard! Siap di-paste ke phpMyAdmin.');
+    }).catch(() => {
+        textarea.select();
+        document.execCommand('copy');
+        showToast('Query SQL disalin ke clipboard!');
     });
 }
 

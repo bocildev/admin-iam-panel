@@ -34,10 +34,12 @@ $route['motion-portfolio/delete-project/(:num)'] = 'motion_portfolio/delete_proj
 $route['motion-portfolio/save-skills'] = 'motion_portfolio/save_skills';
 $route['motion-portfolio/save-tools'] = 'motion_portfolio/save_tools';
 $route['motion-portfolio/upload-media'] = 'motion_portfolio/upload_media';
+$route['motion-portfolio/export-sql'] = 'motion_portfolio/export_sql';
 
 // Motion Portfolio REST API Routes
 $route['api/motion/portfolio'] = 'api/motion_portfolio';
 $route['api/motion/projects'] = 'api/motion_projects';
+$route['api/motion/export-sql'] = 'api/motion_export_sql';
 $route['api/motion/project/save'] = 'api/motion_save_project';
 $route['api/motion/config/save'] = 'api/motion_save_config';
 

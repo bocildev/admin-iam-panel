@@ -252,4 +252,28 @@ class Motion_portfolio extends MY_Controller {
             return $this->json_response(array('success' => false, 'error' => 'Gagal menyimpan file di server'), 500);
         }
     }
+
+    public function export_sql() {
+        if (!$this->db->is_connected()) {
+            return $this->json_response(array('success' => false, 'error' => 'Database tidak terhubung'), 503);
+        }
+
+        $sql = $this->Motion_portfolio_model->get_sync_sql();
+        
+        if ($this->input->get('download')) {
+            $filename = 'seed_motion_portfolio_' . date('Ymd_His') . '.sql';
+            header('Content-Type: application/sql; charset=utf-8');
+            header('Content-Disposition: attachment; filename="' . $filename . '"');
+            header('Content-Length: ' . strlen($sql));
+            echo $sql;
+            exit;
+        }
+
+        return $this->json_response(array(
+            'success'   => true,
+            'sql'       => $sql,
+            'timestamp' => date('Y-m-d H:i:s'),
+            'database'  => 'saas_iam_db'
+        ));
+    }
 }

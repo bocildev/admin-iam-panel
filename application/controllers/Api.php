@@ -742,5 +742,28 @@ class Api extends CI_Controller {
         }
         $this->json_response(array('success' => true));
     }
+
+    // GET /api/motion/export-sql
+    public function motion_export_sql() {
+        $this->authenticate_token('portfolio:read');
+        $this->load->model('Motion_portfolio_model');
+        $sql = $this->Motion_portfolio_model->get_sync_sql();
+        
+        if ($this->input->get('download')) {
+            $filename = 'seed_motion_portfolio_' . date('Ymd_His') . '.sql';
+            header('Content-Type: application/sql; charset=utf-8');
+            header('Content-Disposition: attachment; filename="' . $filename . '"');
+            header('Content-Length: ' . strlen($sql));
+            echo $sql;
+            exit;
+        }
+
+        $this->json_response(array(
+            'success'   => true,
+            'sql'       => $sql,
+            'timestamp' => date('Y-m-d H:i:s'),
+            'database'  => 'saas_iam_db'
+        ));
+    }
 }
 
