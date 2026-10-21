@@ -6,7 +6,7 @@ class Api extends CI_Controller {
     public function __construct() {
         parent::__construct();
         header("Access-Control-Allow-Origin: *");
-        header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+        header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With, X-API-Key, x-api-key");
         header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, DELETE");
         if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
             exit(0);
