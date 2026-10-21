@@ -47,6 +47,8 @@ class Motion_portfolio extends MY_Controller {
             }
         }
 
+        $portfolio_url = ($db_connected) ? ($this->Motion_portfolio_model->get_config('portfolio_url') ?: 'http://localhost:3000') : 'http://localhost:3000';
+
         $data = array(
             'active_tab'     => 'motion_portfolio',
             'title'          => 'Portofolio Motion Control Center',
@@ -54,6 +56,7 @@ class Motion_portfolio extends MY_Controller {
             'profile'        => $profile,
             'skills'         => $skills,
             'software_tools' => $software_tools,
+            'portfolio_url'  => $portfolio_url,
             'application'    => $app,
             'api_key'        => $api_key,
             'db_status'      => array(
@@ -274,6 +277,33 @@ class Motion_portfolio extends MY_Controller {
             'sql'       => $sql,
             'timestamp' => date('Y-m-d H:i:s'),
             'database'  => 'saas_iam_db'
+        ));
+    }
+
+    public function save_portfolio_url() {
+        if (!$this->db->is_connected()) {
+            return $this->json_response(array('success' => false, 'error' => 'Database tidak terhubung'), 503);
+        }
+
+        $input = json_decode(file_get_contents('php://input'), true);
+        if (!$input) {
+            $input = $this->input->post();
+        }
+
+        $url = isset($input['url']) ? trim((string)$input['url']) : '';
+        if (empty($url)) {
+            return $this->json_response(array('success' => false, 'error' => 'URL Portofolio tidak boleh kosong'), 400);
+        }
+
+        if (!preg_match('/^https?:\/\//i', $url)) {
+            $url = 'http://' . $url;
+        }
+
+        $this->Motion_portfolio_model->save_config('portfolio_url', $url);
+        return $this->json_response(array(
+            'success' => true,
+            'url'     => $url,
+            'message' => 'URL Portofolio berhasil disimpan'
         ));
     }
 }

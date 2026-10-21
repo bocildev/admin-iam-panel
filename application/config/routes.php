@@ -35,6 +35,7 @@ $route['motion-portfolio/save-skills'] = 'motion_portfolio/save_skills';
 $route['motion-portfolio/save-tools'] = 'motion_portfolio/save_tools';
 $route['motion-portfolio/upload-media'] = 'motion_portfolio/upload_media';
 $route['motion-portfolio/export-sql'] = 'motion_portfolio/export_sql';
+$route['motion-portfolio/save-portfolio-url'] = 'motion_portfolio/save_portfolio_url';
 
 // Motion Portfolio REST API Routes
 $route['api/motion/portfolio'] = 'api/motion_portfolio';

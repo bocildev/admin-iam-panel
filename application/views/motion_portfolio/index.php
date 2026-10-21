@@ -23,10 +23,15 @@
                 <i data-lucide="database" class="w-4 h-4 text-emerald-400"></i>
                 <span>Export Query SQL</span>
             </button>
-            <a href="http://localhost:3000" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-xs uppercase tracking-wider transition-colors shadow-lg shadow-sky-500/20">
-                <i data-lucide="external-link" class="w-4 h-4"></i>
-                <span>Buka Portofolio (Port 3000)</span>
-            </a>
+            <div class="inline-flex items-center rounded-xl bg-sky-500 hover:bg-sky-400 transition-colors shadow-lg shadow-sky-500/20 p-0.5">
+                <a id="btn-open-portfolio" href="<?php echo htmlspecialchars($portfolio_url); ?>" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-3.5 py-2 text-slate-950 font-bold text-xs uppercase tracking-wider">
+                    <i data-lucide="external-link" class="w-4 h-4"></i>
+                    <span>Buka Portofolio</span>
+                </a>
+                <button onclick="openEditUrlModal()" type="button" title="Atur / Ubah URL Portofolio" class="p-2 border-l border-sky-600/30 text-slate-950 hover:bg-sky-300/40 rounded-r-lg transition cursor-pointer">
+                    <i data-lucide="settings" class="w-3.5 h-3.5"></i>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -116,11 +121,6 @@
                 <span>API &amp; Live Sync</span>
             </button>
         </div>
-
-        <button onclick="openAddProjectModal()" class="hidden md:inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-sky-500/15 hover:bg-sky-500/25 border border-sky-500/40 text-sky-300 font-mono text-xs transition-colors mb-1">
-            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-            <span>Tambah Proyek</span>
-        </button>
     </div>
 
     <!-- TAB 1: PROFIL & KONTAK -->
@@ -631,6 +631,41 @@
     </div>
 </div>
 
+<!-- Modal Edit URL Portofolio -->
+<div id="modal-edit-url" class="fixed inset-0 z-50 hidden bg-[#020617]/85 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="rounded-2xl bg-[#131B2E] border border-[#1E293B] shadow-2xl max-w-md w-full overflow-hidden animate-in">
+        <div class="p-5 border-b border-[#1E293B] flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-sky-500/10 border border-sky-500/20 text-sky-400 flex items-center justify-center">
+                    <i data-lucide="link" class="w-4 h-4"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-sm text-slate-100">Atur URL Portofolio</h3>
+                    <p class="text-xs text-slate-400">Tentukan alamat target aplikasi portofolio Anda.</p>
+                </div>
+            </div>
+            <button onclick="closeEditUrlModal()" class="text-slate-400 hover:text-slate-200 p-1">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+        </div>
+        <form onsubmit="handleSavePortfolioUrl(event)" class="p-5 space-y-4">
+            <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1">Target URL Aplikasi</label>
+                <input type="text" id="input-portfolio-url" value="<?php echo htmlspecialchars($portfolio_url); ?>" placeholder="http://localhost:3000 atau https://adamath.dev" required class="w-full px-3.5 py-2.5 rounded-xl bg-[#0A0E1A] border border-[#1E293B] text-slate-100 text-xs font-mono focus:outline-none focus:border-sky-500 transition">
+                <p class="text-[11px] text-slate-500 mt-1.5">Gunakan <code>http://localhost:3000</code> untuk pengembangan lokal atau domain publik saat dideploy.</p>
+            </div>
+            <div class="pt-3 border-t border-[#1E293B] flex justify-end gap-2">
+                <button type="button" onclick="closeEditUrlModal()" class="px-4 py-2 rounded-xl bg-[#1E293B] hover:bg-[#253147] text-slate-300 text-xs font-medium transition cursor-pointer">
+                    Batal
+                </button>
+                <button type="submit" class="px-4 py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold text-xs uppercase tracking-wider transition cursor-pointer">
+                    Simpan URL
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
 window.motionSkillsData = <?php echo json_encode($skills); ?>;
 
@@ -878,6 +913,42 @@ function copySqlExport() {
         document.execCommand('copy');
         showToast('Query SQL disalin ke clipboard!');
     });
+}
+
+function openEditUrlModal() {
+    document.getElementById('modal-edit-url').classList.remove('hidden');
+    document.getElementById('input-portfolio-url').focus();
+}
+
+function closeEditUrlModal() {
+    document.getElementById('modal-edit-url').classList.add('hidden');
+}
+
+async function handleSavePortfolioUrl(e) {
+    e.preventDefault();
+    const url = document.getElementById('input-portfolio-url').value.trim();
+    if (!url) return;
+
+    try {
+        const res = await fetch('<?php echo base_url("motion-portfolio/save-portfolio-url"); ?>', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url: url })
+        });
+        const json = await res.json();
+        if (json.success) {
+            closeEditUrlModal();
+            const btnOpen = document.getElementById('btn-open-portfolio');
+            if (btnOpen) {
+                btnOpen.href = json.url;
+            }
+            showToast('URL Portofolio berhasil diperbarui ke: ' + json.url);
+        } else {
+            showToast('Gagal mengubah URL: ' + (json.error || 'Terjadi kesalahan'), false);
+        }
+    } catch (err) {
+        showToast('Error koneksi: ' + err.message, false);
+    }
 }
 
 <?php if (!empty($db_status) && (!$db_status['connected'] || !empty($db_status['missing_tables']))): ?>
