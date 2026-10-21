@@ -26,6 +26,80 @@ class Api extends CI_Controller {
                      ->set_output(json_encode($data));
     }
 
+    private function get_bearer_or_api_token() {
+        $headers = function_exists('getallheaders') ? getallheaders() : array();
+        $normalized = array();
+        foreach ($headers as $k => $v) {
+            $normalized[strtolower($k)] = $v;
+        }
+
+        $auth = '';
+        if (!empty($normalized['authorization'])) {
+            $auth = $normalized['authorization'];
+        } elseif (!empty($_SERVER['HTTP_AUTHORIZATION'])) {
+            $auth = $_SERVER['HTTP_AUTHORIZATION'];
+        } elseif (!empty($_SERVER['REDIRECT_HTTP_AUTHORIZATION'])) {
+            $auth = $_SERVER['REDIRECT_HTTP_AUTHORIZATION'];
+        } elseif (!empty($normalized['x-api-key'])) {
+            $auth = $normalized['x-api-key'];
+        } elseif (!empty($_SERVER['HTTP_X_API_KEY'])) {
+            $auth = $_SERVER['HTTP_X_API_KEY'];
+        } elseif ($this->input->get('api_token')) {
+            $auth = $this->input->get('api_token');
+        }
+
+        $auth = trim((string)$auth);
+        if (stripos($auth, 'Bearer ') === 0) {
+            $auth = trim(substr($auth, 7));
+        }
+
+        return $auth;
+    }
+
+    private function authenticate_token($required_scope = null) {
+        $token = $this->get_bearer_or_api_token();
+
+        if (empty($token)) {
+            // Check if active IAM Admin session
+            if (!empty($this->session->userdata('admin_id')) || !empty($_SESSION['admin_id'])) {
+                return array('name' => 'Admin Session Bypass', 'status' => 'active');
+            }
+
+            $this->json_response(array(
+                'success' => false,
+                'error'   => 'Unauthorized',
+                'code'    => 'TOKEN_REQUIRED',
+                'message' => 'API Token required. Sertakan header "Authorization: Bearer <token>" atau "X-API-Key: <token>". Daftarkan aplikasi di IAM Admin Panel.'
+            ), 401);
+            exit;
+        }
+
+        $this->load->model('Apikey_model');
+        $result = $this->Apikey_model->validate_token($token, $required_scope);
+
+        if (!$result['valid']) {
+            $status = ($result['reason'] === 'insufficient_scope') ? 403 : 401;
+            $msg = 'API Token tidak valid.';
+            if ($result['reason'] === 'revoked_token') {
+                $msg = 'API Token telah dicabut (revoked) di IAM Admin Panel.';
+            } elseif ($result['reason'] === 'app_inactive') {
+                $msg = 'Aplikasi induk sedang berstatus nonaktif/maintenance di IAM Admin Panel.';
+            } elseif ($result['reason'] === 'insufficient_scope') {
+                $msg = "Akses ditolak: Token tidak memiliki izin scope '{$required_scope}'.";
+            }
+
+            $this->json_response(array(
+                'success' => false,
+                'error'   => ($status === 403) ? 'Forbidden' : 'Unauthorized',
+                'code'    => strtoupper($result['reason']),
+                'message' => $msg
+            ), $status);
+            exit;
+        }
+
+        return $result['key'];
+    }
+
     // GET /api/health
     public function health() {
         $this->json_response(array(
@@ -136,16 +210,36 @@ class Api extends CI_Controller {
     // POST /api/keys/add
     public function add_api_key() {
         $input = $this->input->raw_json();
-        if (empty($input['name']) || empty($input['ownerId'])) {
-            return $this->json_response(array('error' => 'Token name & owner required'), 400);
+        if (empty($input['name'])) {
+            return $this->json_response(array('error' => 'Token name is required'), 400);
         }
 
         $key = $this->Apikey_model->add_key($input);
         $this->Audit_model->add_log(
             'API_KEY_GENERATION',
-            "Berhasil men-generate REST API token baru \"{$key['name']}\" untuk Owner: {$key['ownerName']}.",
+            "Berhasil men-generate REST API token baru \"{$key['name']}\" ({$key['prefix']}).",
             'high',
             'success'
+        );
+
+        $this->json_response(array('success' => true, 'key' => $key));
+    }
+
+    // POST /api/keys/regenerate
+    public function regenerate_api_key() {
+        $input = $this->input->raw_json();
+        $key_id = isset($input['keyId']) ? $input['keyId'] : null;
+
+        if (!$key_id) {
+            return $this->json_response(array('error' => 'Missing keyId'), 400);
+        }
+
+        $key = $this->Apikey_model->regenerate_key($key_id);
+        $this->Audit_model->add_log(
+            'API_KEY_REGENERATE',
+            "Memperbarui (regenerate) secret token untuk API Key {$key_id}.",
+            'high',
+            'warning'
         );
 
         $this->json_response(array('success' => true, 'key' => $key));
@@ -505,13 +599,20 @@ class Api extends CI_Controller {
 
     // GET /api/motion/portfolio
     public function motion_portfolio() {
+        $auth_key = $this->authenticate_token('portfolio:read');
         $this->load->model('Motion_portfolio_model');
         $data = $this->Motion_portfolio_model->get_all_portfolio_data();
+        $data['_auth'] = array(
+            'authenticated' => true,
+            'client_app'    => isset($auth_key['app_name']) && $auth_key['app_name'] ? $auth_key['app_name'] : 'Authenticated Client',
+            'key_name'      => isset($auth_key['name']) ? $auth_key['name'] : 'API Key'
+        );
         $this->json_response($data);
     }
 
     // GET /api/motion/projects
     public function motion_projects() {
+        $auth_key = $this->authenticate_token('portfolio:read');
         $this->load->model('Motion_portfolio_model');
         $projects = $this->Motion_portfolio_model->get_all_projects(true);
         $this->json_response($projects);
@@ -519,6 +620,7 @@ class Api extends CI_Controller {
 
     // POST /api/motion/project/save
     public function motion_save_project() {
+        $this->authenticate_token('portfolio:write');
         $this->load->model('Motion_portfolio_model');
         $input = $this->input->raw_json();
         if (empty($input['title'])) {
@@ -530,6 +632,7 @@ class Api extends CI_Controller {
 
     // POST /api/motion/config/save
     public function motion_save_config() {
+        $this->authenticate_token('portfolio:write');
         $this->load->model('Motion_portfolio_model');
         $input = $this->input->raw_json();
         $key = isset($input['key']) ? $input['key'] : null;

@@ -74,6 +74,14 @@
                             <span>Provisioning Status: <strong class="text-emerald-400"><?php echo strtoupper($app['db_status'] ?? 'PROVISIONED'); ?></strong></span>
                             <span>Host: <?php echo htmlspecialchars($app['db_host'] ?? '127.0.0.1'); ?>:<?php echo htmlspecialchars($app['db_port'] ?? '3306'); ?></span>
                         </div>
+                        <?php if (!empty($app['active_api_token'])): ?>
+                        <div class="flex items-center justify-between text-[11px] font-mono text-slate-400 border-t border-[#1E293B] pt-2">
+                            <span class="text-slate-400 flex items-center gap-1.5">
+                                <i data-lucide="key" class="w-3.5 h-3.5 text-amber-400"></i> Client Token:
+                            </span>
+                            <span class="text-amber-300 font-bold"><?php echo htmlspecialchars(substr($app['active_api_token'], 0, 14)) . '...'; ?></span>
+                        </div>
+                        <?php endif; ?>
                     </div>
                 </div>
 

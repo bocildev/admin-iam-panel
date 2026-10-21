@@ -8,19 +8,22 @@ class Apikeys extends MY_Controller {
         $this->load->model('Apikey_model');
         $this->load->model('User_model');
         $this->load->model('Audit_model');
+        $this->load->model('Application_model');
     }
 
     public function index() {
-        $api_keys = $this->Apikey_model->get_all_keys();
-        $users    = $this->User_model->get_all_users();
-        $stats    = get_mock_stats();
+        $api_keys     = $this->Apikey_model->get_all_keys();
+        $users        = $this->User_model->get_all_users();
+        $applications = $this->Application_model->get_all_applications();
+        $stats        = get_mock_stats();
 
         $data = array(
-            'active_tab' => 'api_keys',
-            'title'      => 'REST API Token & Key Management',
-            'api_keys'   => $api_keys,
-            'users'      => $users,
-            'stats'      => $stats
+            'active_tab'   => 'api_keys',
+            'title'        => 'REST API Token & Key Management',
+            'api_keys'     => $api_keys,
+            'users'        => $users,
+            'applications' => $applications,
+            'stats'        => $stats
         );
 
         $this->load->view('layout/header', $data);

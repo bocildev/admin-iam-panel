@@ -321,13 +321,92 @@
 
     <!-- TAB 5: API & LIVE SYNC -->
     <div id="tab-api" class="motion-tab-content hidden space-y-6">
+
+        <!-- Application Registration & API Token Status -->
+        <div class="p-6 rounded-2xl bg-[#0e1117] border border-cyan-500/30 space-y-5">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div class="space-y-1">
+                    <div class="flex items-center gap-2">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 uppercase">
+                            Registered Application
+                        </span>
+                        <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 uppercase">
+                            <?php echo strtoupper($application['status'] ?? 'ACTIVE'); ?>
+                        </span>
+                    </div>
+                    <h3 class="text-lg font-bold text-white font-sans">
+                        <?php echo htmlspecialchars($application['name'] ?? 'Moch. Adam Athallahrich Motion Portfolio'); ?>
+                    </h3>
+                    <p class="text-xs text-slate-400 font-mono">
+                        App ID: <span class="text-cyan-300"><?php echo htmlspecialchars($application['id'] ?? 'APP-0001'); ?></span> · Slug: <span class="text-slate-300"><?php echo htmlspecialchars($application['slug'] ?? 'motion-portfolio'); ?></span>
+                    </p>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <a href="<?php echo base_url('api-keys'); ?>" class="px-3.5 py-2 rounded-xl bg-[#131B2E] hover:bg-[#1E293B] border border-white/10 text-white font-semibold text-xs flex items-center gap-2 transition">
+                        <i data-lucide="key" class="w-4 h-4 text-amber-400"></i>
+                        <span>Buka Menu API Keys</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Active Token Card -->
+            <div class="p-4 rounded-xl bg-[#08090d] border border-white/10 space-y-3 font-mono text-xs">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/10 pb-3">
+                    <span class="text-slate-400 flex items-center gap-2">
+                        <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i>
+                        <span>Client Bearer Token / Permission Key:</span>
+                    </span>
+                    <span class="text-[11px] text-emerald-400 font-bold uppercase">
+                        Status: <?php echo strtoupper($api_key['status'] ?? 'ACTIVE'); ?>
+                    </span>
+                </div>
+
+                <?php $token_val = $api_key['secret_key'] ?? ($api_key['token_hash'] ?? 'iam_live_default_token'); ?>
+                <div class="flex items-center justify-between gap-3 p-3 rounded-lg bg-[#0e1117] border border-white/15">
+                    <div class="truncate text-cyan-300 text-xs select-all">
+                        <span id="current-api-token"><?php echo htmlspecialchars($token_val); ?></span>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                        <button onclick="copyApiToken('<?php echo htmlspecialchars($token_val); ?>')" class="px-3 py-1.5 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/40 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer">
+                            <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                            <span>Salin Token</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2 pt-1 text-[11px] text-slate-400">
+                    <span>Izin Akses (Scopes):</span>
+                    <span class="px-2 py-0.5 rounded bg-sky-500/10 text-sky-300 border border-sky-500/30">portfolio:read</span>
+                    <span class="px-2 py-0.5 rounded bg-sky-500/10 text-sky-300 border border-sky-500/30">portfolio:write</span>
+                    <span class="px-2 py-0.5 rounded bg-purple-500/10 text-purple-300 border border-purple-500/30">* (Full)</span>
+                </div>
+            </div>
+
+            <!-- Setup Instructions for Nuxt 3 -->
+            <div class="p-4 rounded-xl bg-gradient-to-br from-indigo-500/10 to-transparent border border-indigo-500/20 space-y-2.5">
+                <div class="flex items-center gap-2 text-indigo-300 font-bold text-xs font-mono">
+                    <i data-lucide="terminal" class="w-4 h-4"></i>
+                    <span>Konfigurasi Portofolio Motion (<code class="text-white">portofolio-motion/.env</code>)</span>
+                </div>
+                <p class="text-[11px] text-slate-400">
+                    Pastikan variabel token berikut terpasang di file <code class="text-amber-300">.env</code> aplikasi Nuxt 3 agar permintaan API diizinkan:
+                </p>
+                <div class="p-3 rounded-lg bg-[#08090d] border border-white/10 font-mono text-xs text-amber-300 select-all">
+                    IAM_API_BASE=http://localhost/iam-admin-panel<br>
+                    IAM_API_TOKEN=<?php echo htmlspecialchars($token_val); ?>
+                </div>
+            </div>
+        </div>
+
+        <!-- Protected REST Endpoints List -->
         <div class="p-6 rounded-2xl bg-[#0e1117] border border-white/10 space-y-4">
             <h3 class="text-base font-bold text-white font-sans flex items-center gap-2">
                 <i data-lucide="radio" class="w-4 h-4 text-emerald-400"></i>
-                REST API Endpoints untuk Portofolio Motion
+                REST API Endpoints Terproteksi Token
             </h3>
             <p class="text-xs text-slate-400">
-                Gunakan URL berikut sebagai penyedia data dinamis untuk aplikasi frontend Anda (Nuxt 3):
+                Endpoint berikut memerlukan header HTTP <code class="text-cyan-300 font-mono">Authorization: Bearer &lt;token&gt;</code> atau <code class="text-cyan-300 font-mono">X-API-Key: &lt;token&gt;</code>:
             </p>
 
             <div class="space-y-3 font-mono text-xs">
@@ -335,9 +414,10 @@
                     <div>
                         <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold mr-2">GET</span>
                         <span class="text-slate-200"><?php echo base_url('api/motion/portfolio'); ?></span>
+                        <span class="ml-2 px-1.5 py-0.5 rounded text-[10px] bg-slate-800 text-slate-400">scope: portfolio:read</span>
                     </div>
-                    <a href="<?php echo base_url('api/motion/portfolio'); ?>" target="_blank" class="text-sky-400 hover:underline">
-                        Test Endpoint &rarr;
+                    <a href="<?php echo base_url('api/motion/portfolio?api_token=' . urlencode($token_val)); ?>" target="_blank" class="text-sky-400 hover:underline">
+                        Test Endpoint (With Token) &rarr;
                     </a>
                 </div>
 
@@ -345,9 +425,10 @@
                     <div>
                         <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold mr-2">GET</span>
                         <span class="text-slate-200"><?php echo base_url('api/motion/projects'); ?></span>
+                        <span class="ml-2 px-1.5 py-0.5 rounded text-[10px] bg-slate-800 text-slate-400">scope: portfolio:read</span>
                     </div>
-                    <a href="<?php echo base_url('api/motion/projects'); ?>" target="_blank" class="text-sky-400 hover:underline">
-                        Test Endpoint &rarr;
+                    <a href="<?php echo base_url('api/motion/projects?api_token=' . urlencode($token_val)); ?>" target="_blank" class="text-sky-400 hover:underline">
+                        Test Endpoint (With Token) &rarr;
                     </a>
                 </div>
             </div>
@@ -592,5 +673,14 @@ async function handleSaveSkills() {
     } catch (err) {
         showToast('Error: ' + err.message, false);
     }
+}
+
+function copyApiToken(text) {
+    if (!text) return;
+    navigator.clipboard.writeText(text).then(() => {
+        showToast('API Token berhasil disalin ke clipboard!');
+    }).catch(() => {
+        alert('API Token: ' + text);
+    });
 }
 </script>

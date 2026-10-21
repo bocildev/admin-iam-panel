@@ -41,6 +41,11 @@ $route['api/motion/projects'] = 'api/motion_projects';
 $route['api/motion/project/save'] = 'api/motion_save_project';
 $route['api/motion/config/save'] = 'api/motion_save_config';
 
+// REST API Keys Management Routes
+$route['api/keys/add'] = 'api/add_api_key';
+$route['api/keys/revoke'] = 'api/revoke_api_key';
+$route['api/keys/regenerate'] = 'api/regenerate_api_key';
+
 // Auth & Admin IAM Routes
 $route['auth/login'] = 'auth/login';
 $route['auth/logout'] = 'auth/logout';

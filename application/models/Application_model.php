@@ -9,7 +9,13 @@ class Application_model extends CI_Model {
 
     public function get_all_applications() {
         if ($this->db->is_connected()) {
-            $res = $this->db->query("SELECT a.*, d.db_name, d.status as db_status, d.db_host, d.db_port, d.db_user FROM applications a LEFT JOIN app_databases d ON a.id = d.application_id ORDER BY a.created_at DESC");
+            $sql = "SELECT a.*, d.db_name, d.status as db_status, d.db_host, d.db_port, d.db_user,
+                    (SELECT COUNT(*) FROM api_keys k WHERE k.application_id = a.id) as key_count,
+                    (SELECT k.secret_key FROM api_keys k WHERE k.application_id = a.id AND k.status = 'active' ORDER BY k.created_at DESC LIMIT 1) as active_api_token
+                    FROM applications a 
+                    LEFT JOIN app_databases d ON a.id = d.application_id 
+                    ORDER BY a.created_at DESC";
+            $res = $this->db->query($sql);
             return $res ? $res->result_array() : array();
         }
         return array();
@@ -18,6 +24,14 @@ class Application_model extends CI_Model {
     public function get_by_id($id) {
         if ($this->db->is_connected()) {
             $res = $this->db->query("SELECT * FROM applications WHERE id = ?", array($id));
+            return $res ? $res->row_array() : null;
+        }
+        return null;
+    }
+
+    public function get_by_slug($slug) {
+        if ($this->db->is_connected()) {
+            $res = $this->db->query("SELECT * FROM applications WHERE slug = ?", array($slug));
             return $res ? $res->row_array() : null;
         }
         return null;

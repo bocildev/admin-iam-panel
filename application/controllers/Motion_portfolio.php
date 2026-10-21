@@ -15,10 +15,15 @@ class Motion_portfolio extends MY_Controller {
     }
 
     public function index() {
+        $this->load->model('Apikey_model');
+        $this->load->model('Application_model');
+
         $projects       = $this->Motion_portfolio_model->get_all_projects();
         $profile        = $this->Motion_portfolio_model->get_config('profile') ?: array();
         $skills         = $this->Motion_portfolio_model->get_config('skills') ?: array();
         $software_tools = $this->Motion_portfolio_model->get_config('software_tools') ?: array();
+        $app            = $this->Application_model->get_by_slug('motion-portfolio');
+        $api_key        = $app ? $this->Apikey_model->get_key_by_app_id($app['id']) : null;
 
         $data = array(
             'active_tab'     => 'motion_portfolio',
@@ -26,7 +31,9 @@ class Motion_portfolio extends MY_Controller {
             'projects'       => $projects,
             'profile'        => $profile,
             'skills'         => $skills,
-            'software_tools' => $software_tools
+            'software_tools' => $software_tools,
+            'application'    => $app,
+            'api_key'        => $api_key
         );
 
         $this->load->view('layout/header', $data);
